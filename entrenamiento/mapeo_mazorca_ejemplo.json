@@ -1,0 +1,6 @@
+{
+  "CocoaMoniliaDataSet": {"h0": "sana", "m1": "monilia", "m2": "monilia", "m3": "monilia"},
+  "Cacao-Diseases-Project": {"sana": "sana", "monilia": "monilia", "fitoftora": "fitoftora"},
+  "Cacao_Diseases_Pests": {"HEALTHY": "sana", "FROSTYPOD": "monilia", "BLACKPOD": "fitoftora", "MIRID": "otro"},
+  "fotos_app": {"sana": "sana", "monilia": "monilia", "fitoftora": "fitoftora", "otro": "otro"}
+}

@@ -1,0 +1,129 @@
+{
+  "_nota": "Valores de referencia para la app. VERIFICAR contra el texto oficial vigente de la NTE INEN 176 antes de usar con fines comerciales. La app debe permitir editar esta tabla sin reinstalar (Remote Config).",
+  "clases_detector": {
+    "bien_fermentado": "fermentado_bueno",
+    "ligeramente_fermentado": "fermentado_ligero",
+    "violeta": "violeta",
+    "pizarroso": "pizarroso",
+    "mohoso": "mohoso",
+    "dano_insectos": "defectuoso",
+    "germinado": "defectuoso",
+    "vano_plano": "defectuoso",
+    "otro": "ignorar"
+  },
+  "perfiles": {
+    "ccn51_referencia": {
+      "descripcion": "Requisitos para CCN-51 citados en el informe 1 (NTE INEN 176). Se omite el minimo de 11% de 'ligera fermentacion' porque penalizaria lotes mejor fermentados; confirmar su interpretacion en la norma.",
+      "requisitos": [
+        {
+          "indicador": "fermentado_bueno",
+          "tipo": "min",
+          "valor": 65
+        },
+        {
+          "indicador": "fermentado_total",
+          "tipo": "min",
+          "valor": 76
+        },
+        {
+          "indicador": "violeta",
+          "tipo": "max",
+          "valor": 18
+        },
+        {
+          "indicador": "pizarroso",
+          "tipo": "max",
+          "valor": 5
+        },
+        {
+          "indicador": "mohoso",
+          "tipo": "max",
+          "valor": 1
+        }
+      ],
+      "resultado_si_cumple": "CCN-51 conforme",
+      "resultado_si_no_cumple": "CCN-51 no conforme"
+    },
+    "grados_1_2_3": {
+      "descripcion": "Tabla por grados citada en el informe 2 (NTE INEN 176, 2021)",
+      "grados": [
+        {
+          "grado": "Grado 1",
+          "requisitos": [
+            {
+              "indicador": "fermentado_total",
+              "tipo": "min",
+              "valor": 75
+            },
+            {
+              "indicador": "violeta",
+              "tipo": "max",
+              "valor": 15
+            },
+            {
+              "indicador": "pizarroso",
+              "tipo": "max",
+              "valor": 9
+            },
+            {
+              "indicador": "mohoso",
+              "tipo": "max",
+              "valor": 1
+            }
+          ]
+        },
+        {
+          "grado": "Grado 2",
+          "requisitos": [
+            {
+              "indicador": "fermentado_total",
+              "tipo": "min",
+              "valor": 65
+            },
+            {
+              "indicador": "violeta",
+              "tipo": "max",
+              "valor": 21
+            },
+            {
+              "indicador": "pizarroso",
+              "tipo": "max",
+              "valor": 12
+            },
+            {
+              "indicador": "mohoso",
+              "tipo": "max",
+              "valor": 2
+            }
+          ]
+        },
+        {
+          "grado": "Grado 3",
+          "requisitos": [
+            {
+              "indicador": "fermentado_total",
+              "tipo": "min",
+              "valor": 53
+            },
+            {
+              "indicador": "violeta",
+              "tipo": "max",
+              "valor": 25
+            },
+            {
+              "indicador": "pizarroso",
+              "tipo": "max",
+              "valor": 18
+            },
+            {
+              "indicador": "mohoso",
+              "tipo": "max",
+              "valor": 4
+            }
+          ]
+        }
+      ],
+      "resultado_si_no_cumple": "Fuera de grado"
+    }
+  }
+}

@@ -40,3 +40,7 @@ yolo*.pt
 .DS_Store
 Thumbs.db
 *.log
+
+# Generado por generar_datos_sinteticos.py
+entrenamiento/mapeo_*_sintetico.json
+entrenamiento/comparacion.json
