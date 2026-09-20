@@ -1,6 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Camara: fotos de mazorcas, tableros, nibs y barras (RF-REC-02, RF-PRC-03) -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Estado de la red, para decidir cuando vaciar la cola de sincronizacion -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Notificaciones locales de volteos e inspecciones (RF-ALE-02) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Ubicacion OPCIONAL, solo para la trazabilidad de origen (RF-REC-06).
+         La app funciona completa sin concederlo. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- La camara no es obligatoria: sin ella la app sigue sirviendo para
+         registrar y contar a mano. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
-        android:label="cacaotrace"
+        android:label="CacaoTrace"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,30 +1,65 @@
-// This is a basic Flutter widget test.
+// Prueba de humo de la app completa: arranca con una base en memoria y
+// comprueba que la pantalla de inicio se dibuja sin explotar.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Es la prueba que detecta los errores tontos y caros: un provider que falta,
+// un asset mal declarado, una pantalla que se cae al no haber datos.
 
+import 'package:cacaotrace/datos/bd/base_datos.dart';
+import 'package:cacaotrace/servicios.dart';
+import 'package:cacaotrace/ui/app.dart';
+import 'package:cacaotrace/ui/tema.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cacaotrace/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('la app arranca y muestra la pantalla de hoy', (tester) async {
+    final bd = BaseDatos(NativeDatabase.memory());
+    final servicios = await Servicios.arrancar(baseDatos: bd);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: temaClaro(),
+        home: ProveedorServicios(
+          servicios: servicios,
+          child: const AppCacaoTrace(),
+        ),
+      ),
+    );
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('¿Qué hago hoy?'), findsOneWidget);
+    expect(find.text('Hoy'), findsOneWidget);
+    expect(find.text('Lotes'), findsOneWidget);
+    expect(find.text('Chocolate'), findsOneWidget);
+    expect(find.text('Panel'), findsOneWidget);
+    expect(find.text('Ajustes'), findsOneWidget);
+
+    await servicios.cerrar();
+  });
+
+  testWidgets('sin lotes, la pantalla de lotes invita a crear el primero',
+      (tester) async {
+    final bd = BaseDatos(NativeDatabase.memory());
+    final servicios = await Servicios.arrancar(baseDatos: bd);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: temaClaro(),
+        home: ProveedorServicios(
+          servicios: servicios,
+          child: const AppCacaoTrace(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Lotes'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Todavía no hay lotes'), findsOneWidget);
+
+    await servicios.cerrar();
   });
 }
