@@ -57,23 +57,46 @@ app solo ve los archivos que ella misma creó, nunca el resto del Drive del usua
 
 ### 4. Implementar el sincronizador
 
-Crea `app/lib/datos/sync/sincronizador_firebase.dart`:
+Crea `android/app/src/main/kotlin/ec/cacaotrace/datos/sync/SincronizadorFirebase.kt`:
 
-```dart
-class SincronizadorFirebase implements SincronizadorRemoto {
-  @override
-  Future<ResultadoSync> enviarRegistro(OperacionSync op) async { ... }
+```kotlin
+class SincronizadorFirebase(/* … */) : SincronizadorRemoto {
 
-  @override
-  Future<ResultadoSync> subirFoto(Foto foto, {required bool soloWifi}) async { ... }
+    override val nombre = "Firebase"
 
-  @override
-  Future<void> respaldoCompleto() async { ... }   // ZIP semanal a Drive/Respaldos/
+    override suspend fun estaDisponible(): Boolean { /* … */ }
+
+    override suspend fun enviarRegistro(operacion: OperacionSyncEntidad): ResultadoSync { /* … */ }
+
+    /** Si [soloWifi] es true y no hay WiFi, devuelve ResultadoSync.REINTENTAR. */
+    override suspend fun subirArchivo(
+        operacion: OperacionSyncEntidad,
+        soloWifi: Boolean,
+    ): ResultadoSync { /* … */ }
+
+    override suspend fun respaldoCompleto(): ResultadoSync { /* ZIP semanal a Drive/Respaldos/ */ }
+
+    override suspend fun descargarCambios(): ResultadoSync { /* … */ }
 }
 ```
 
-y regístralo en `app/lib/datos/sync/proveedor_sincronizador.dart` en lugar de
-`SincronizadorLocalSimulado`. **No hay que tocar la UI ni la base de datos.**
+y cámbialo en `ContenedorApp.kt`, en la única línea donde hoy se construye
+`SincronizadorLocal()`:
+
+```kotlin
+val sync: ServicioSincronizacion by lazy {
+    ServicioSincronizacion(
+        bd = bd,
+        remoto = SincronizadorFirebase(/* … */),   // ← aquí
+        hayConexion = { hayRed(exigirWifi = false) },
+        hayWifi = { hayRed(exigirWifi = true) },
+    )
+}
+```
+
+**No hay que tocar la interfaz ni la base de datos.** La cola de salida, los reintentos
+con retroceso exponencial y la preferencia de "solo WiFi" ya están resueltos en
+`ServicioSincronizacion`.
 
 ### 5. Remote Config (RNF-12)
 

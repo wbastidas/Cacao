@@ -5,7 +5,7 @@ Convierte el conteo de granos por clase (venga del detector M2 o del conteo manu
 en porcentajes y en el resultado de calidad según la tabla de `norma_inen176.json`.
 
 Esta misma lógica está replicada en la app, en Dart
-(`app/lib/nucleo/norma/calificador_corte.dart`), para que funcione sin internet.
+(`android/nucleo/.../norma/CalificadorCorte.kt`), para que funcione sin internet.
 Las dos implementaciones leen EL MISMO archivo JSON y tienen los mismos tests:
 si una se desvía de la otra, los tests fallan.
 

@@ -1,5 +1,5 @@
 {
-  "_nota": "Casos de prueba COMPARTIDOS entre la implementación Python (calificar_corte.py) y la implementación Dart de la app (lib/nucleo/norma/calificador_corte.dart). Si una de las dos se desvía, sus tests fallan. No edites este archivo sin actualizar las dos.",
+  "_nota": "Casos de prueba COMPARTIDOS entre la implementación Python (calificar_corte.py) y la implementación Kotlin de la app (android/nucleo/.../norma/CalificadorCorte.kt). Si una de las dos se desvía, sus tests fallan. No edites este archivo sin actualizar las dos.",
   "casos": [
     {
       "nombre": "lote bien fermentado: grado 1 pero pizarroso sobre el limite de CCN-51",

@@ -22,6 +22,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,21 +53,56 @@ import ec.cacaotrace.ui.comun.BarraSuperior
  */
 @Composable
 fun PantallaGuias(navegacion: NavHostController) {
+    var pestana by rememberSaveable { mutableStateOf(0) }
+
     Scaffold(topBar = { BarraSuperior("Guías", navegacion) }) { relleno ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(relleno),
-            contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 32.dp),
-        ) {
-            item {
-                Text(
-                    "Lo básico de cada etapa, explicado sin tecnicismos. Se pueden leer " +
-                        "sin conexión.",
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp),
+        Column(Modifier.fillMaxSize().padding(relleno)) {
+            TabRow(selectedTabIndex = pestana) {
+                Tab(
+                    selected = pestana == 0,
+                    onClick = { pestana = 0 },
+                    text = { Text("Guías del proceso") },
+                )
+                Tab(
+                    selected = pestana == 1,
+                    onClick = { pestana = 1 },
+                    text = { Text("Glosario") },
                 )
             }
-            items(GUIAS, key = { it.titulo }) { guia -> TarjetaGuia(guia) }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 32.dp),
+            ) {
+                if (pestana == 0) {
+                    item {
+                        Text(
+                            "Lo básico de cada etapa, explicado sin tecnicismos. Se pueden " +
+                                "leer sin conexión.",
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 12.dp),
+                        )
+                    }
+                    items(GUIAS, key = { it.titulo }) { guia -> TarjetaGuia(guia) }
+                } else {
+                    item {
+                        Text(
+                            "Las palabras que aparecen en la app y en las conversaciones " +
+                                "sobre cacao, dichas en corto (RF-GUI-02).",
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 12.dp),
+                        )
+                    }
+                    items(GLOSARIO, key = { it.first }) { (termino, definicion) ->
+                        Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                            Text(termino, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                            Text(definicion, fontSize = 15.sp)
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -272,4 +309,54 @@ private val GUIAS = listOf(
         errorComun = "Apoyar los sacos directamente en el piso de cemento. La humedad " +
             "sube por abajo y el saco de abajo se enmohece sin que se vea.",
     ),
+)
+
+/**
+ * Glosario (RF-GUI-02).
+ *
+ * Están las palabras que alguien que empieza oye a diario y nadie le explica, y
+ * también las que la propia app usa en sus avisos: si la alerta dice "grano
+ * pizarroso" y el usuario no sabe qué es, la alerta no sirve de nada.
+ */
+private val GLOSARIO = listOf(
+    "Baba" to "La pulpa blanca y dulce que envuelve el grano dentro de la mazorca. " +
+        "Es lo que fermenta; el grano solo recibe el calor y los ácidos que produce.",
+    "Bean to bar" to "Hacer el chocolate desde el grano hasta la barra, sin comprar " +
+        "pasta ni cobertura ya hecha.",
+    "Cascarilla" to "La cáscara fina que envuelve el grano tostado. Se separa al " +
+        "descascarillar y suele ser del 10 al 15 % del peso.",
+    "CCN-51" to "Variedad de cacao muy productiva y resistente, la más sembrada en " +
+        "Ecuador. Es más ácida y amarga que el Nacional, y por eso pide una " +
+        "fermentación y un tostado cuidados.",
+    "Conchado" to "Las últimas horas de refinado, cuando el chocolate ya está liso y " +
+        "lo que se busca es que pierda acidez y gane aroma.",
+    "Fat bloom" to "Manchas blancas grasosas en la barra. Salen cuando el atemperado " +
+        "falló o cuando la barra pasó calor. No hace daño, pero se ve mal y la " +
+        "textura queda arenosa.",
+    "Fermentación" to "Los 5 o 6 días en que la baba se convierte en alcohol y luego " +
+        "en vinagre, y el calor y los ácidos entran al grano. Ahí nace el sabor a " +
+        "chocolate: sin esto, el grano sabe a nada.",
+    "Fitóftora" to "Enfermedad que deja manchas oscuras y húmedas en la mazorca. " +
+        "Se extiende rápido con lluvia.",
+    "Grano pizarroso" to "Grano que al cortarlo se ve gris azulado y compacto, sin " +
+        "surcos. Significa que no fermentó: da amargor y astringencia.",
+    "Grano vano" to "Grano plano y hueco, sin almendra dentro. No sirve para nada y " +
+        "cuenta como defecto en la prueba de corte.",
+    "Marquesina" to "Techo de plástico transparente bajo el que se seca el cacao. " +
+        "Protege de la lluvia y deja pasar el sol.",
+    "Melanger" to "Molino de piedras que refina el chocolate durante horas, hasta " +
+        "que no se notan granitos en la lengua.",
+    "Monilia" to "Enfermedad que llena la mazorca de una costra blanca y la pudre " +
+        "por dentro. Es la principal causa de pérdida de cosecha en Ecuador.",
+    "Nib" to "El pedazo de grano tostado y sin cáscara. Es la materia prima del " +
+        "chocolate.",
+    "Prueba de corte" to "Cortar 100 granos por la mitad y contar cuántos hay de " +
+        "cada tipo. Es la forma estándar de medir si la fermentación salió bien.",
+    "Sugar bloom" to "Manchas blancas ásperas por humedad, no por grasa. Pasa cuando " +
+        "la barra se guarda en un sitio húmedo o se saca fría del refrigerador.",
+    "Atemperar" to "Llevar el chocolate por tres temperaturas para que la manteca " +
+        "cristalice bien. Es lo que le da brillo, el chasquido al partirlo y que " +
+        "no se derrita en la mano.",
+    "Volteo" to "Remover la masa en fermentación para que el calor y el aire lleguen " +
+        "parejo a todo el montón. Se hace cada 24 horas.",
 )

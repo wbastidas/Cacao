@@ -2,12 +2,12 @@
 instalar_modelo.py — CacaoTrace
 
 Copia el modelo entrenado, sus etiquetas y sus metadatos a la carpeta de recursos de
-la app Flutter, con el nombre que la app espera.
+la app Android, con el nombre que la app espera.
 
 La app busca, para cada tarea:
-    app/assets/modelos/<tarea>/modelo.tflite
-    app/assets/modelos/<tarea>/etiquetas.txt
-    app/assets/modelos/<tarea>/metadatos.json
+    android/app/src/main/assets/modelos/<tarea>/modelo.tflite
+    android/app/src/main/assets/modelos/<tarea>/etiquetas.txt
+    android/app/src/main/assets/modelos/<tarea>/metadatos.json
 
 Si la carpeta no existe o está vacía, la app arranca igual y muestra "modelo no
 instalado"; el registro y el conteo manual siguen funcionando (§12 de la ERS).
@@ -42,7 +42,9 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
 
     origen = a.salidas or (RAIZ / "entrenamiento" / "salidas" / a.tarea)
-    destino = a.destino or (RAIZ / "app" / "assets" / "modelos" / a.tarea)
+    destino = a.destino or (
+        RAIZ / "android" / "app" / "src" / "main" / "assets" / "modelos" / a.tarea
+    )
 
     meta_ruta = origen / "metadatos.json"
     if not meta_ruta.exists():
@@ -89,8 +91,9 @@ def main(argv=None) -> int:
     print(f"  modelo.tflite    {mb:.1f} MB  (desde {nombre})")
     print(f"  clases           {', '.join(meta.get('clases', []))}")
     print(f"  versión          {meta.get('version')}")
-    print("\nComprueba que app/pubspec.yaml incluye 'assets/modelos/' y vuelve a correr "
-          "'flutter pub get'.")
+    print("\nNo hace falta ningún paso más: Gradle empaqueta todo lo que haya bajo "
+          "src/main/assets/. Vuelve a instalar la app para que el modelo llegue al "
+          "teléfono.")
     return 0
 
 

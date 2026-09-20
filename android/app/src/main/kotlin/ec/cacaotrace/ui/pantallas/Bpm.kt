@@ -1,5 +1,6 @@
 package ec.cacaotrace.ui.pantallas
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Sanitizer
 import androidx.compose.material3.AlertDialog
@@ -36,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,12 +46,19 @@ import androidx.navigation.NavHostController
 import ec.cacaotrace.ContenedorApp
 import ec.cacaotrace.datos.bd.entidades.ChecklistBpmEntidad
 import ec.cacaotrace.datos.repositorios.RegistroBpmCerrado
+import ec.cacaotrace.informes.GeneradorPdf
+import ec.cacaotrace.informes.LineaPdf
+import ec.cacaotrace.informes.SeccionPdf
 import ec.cacaotrace.ui.ColoresEstado
 import ec.cacaotrace.ui.comun.Aviso
 import ec.cacaotrace.ui.comun.BarraSuperior
 import ec.cacaotrace.ui.comun.BotonGrande
+import ec.cacaotrace.ui.comun.Formato
 import ec.cacaotrace.ui.comun.TarjetaSeccion
+import ec.cacaotrace.ui.comun.uriDe
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -64,9 +74,13 @@ import kotlinx.serialization.json.jsonPrimitive
  */
 @Composable
 fun PantallaBpm(contenedor: ContenedorApp, navegacion: NavHostController) {
+    val contexto = LocalContext.current
+    val alcance = rememberCoroutineScope()
+    val generador = remember { GeneradorPdf(contexto) }
     val checklists by contenedor.apoyo.observarChecklists().collectAsState(initial = emptyList())
     var mensaje by remember { mutableStateOf<String?>(null) }
     var recargar by remember { mutableStateOf(0) }
+    var exportando by remember { mutableStateOf(false) }
 
     // Se cierran los vencidos al entrar: si la app no se abrió ayer, el
     // registro de ayer tiene que quedar cerrado igualmente.
@@ -96,6 +110,56 @@ fun PantallaBpm(contenedor: ContenedorApp, navegacion: NavHostController) {
                 FormularioChecklist(contenedor, checklist, recargar) { texto ->
                     mensaje = texto
                     recargar++
+                }
+            }
+
+            // RF-BPM-03: el PDF es lo que se enseña en una inspección de ARCSA.
+            Spacer(Modifier.height(16.dp))
+            BotonGrande(
+                texto = "Exportar los registros en PDF",
+                subtitulo = "Para presentarlos en una inspección",
+                icono = Icons.Default.PictureAsPdf,
+                habilitado = !exportando,
+            ) {
+                exportando = true
+                alcance.launch {
+                    val registros = contenedor.apoyo.todosLosRegistrosBpm()
+                    val nombres = checklists.associate { it.id to it.nombre }
+                    val archivo = withContext(Dispatchers.IO) {
+                        generador.reporte(
+                            nombre = "registros_bpm.pdf",
+                            titulo = "Registros de buenas prácticas",
+                            secciones = registros
+                                .groupBy { it.checklistId }
+                                .map { (checklistId, lista) ->
+                                    SeccionPdf(
+                                        titulo = nombres[checklistId] ?: "Lista",
+                                        lineas = lista.map { r ->
+                                            LineaPdf.Dato(
+                                                Formato.fechaHora(r.fecha),
+                                                buildString {
+                                                    append(r.responsable.ifBlank { "sin firmar" })
+                                                    if (r.cerrado) append(" · cerrado")
+                                                    if (r.observaciones.isNotBlank()) {
+                                                        append(" · ${r.observaciones}")
+                                                    }
+                                                },
+                                            )
+                                        },
+                                    )
+                                },
+                        )
+                    }
+                    exportando = false
+                    mensaje = "PDF generado: ${archivo.name}"
+                    val intento = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uriDe(contexto, archivo))
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    contexto.startActivity(
+                        Intent.createChooser(intento, "Compartir ${archivo.name}"),
+                    )
                 }
             }
 

@@ -2,7 +2,7 @@
 Tests de la calificación según la norma INEN 176.
 
 Los casos viven en `casos_norma.json` y los comparten esta implementación en Python y
-la de la app en Dart (`app/test/nucleo/calificador_corte_test.dart`). Si una de las dos
+la de la app en Kotlin (`android/nucleo/src/test/.../CalificadorCorteTest.kt`). Si una
 se desvía de la otra, estos tests fallan.
 
     pytest entrenamiento/pruebas -v

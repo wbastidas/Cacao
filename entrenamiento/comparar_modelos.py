@@ -11,7 +11,7 @@ miden con las mismas imágenes.
 
 Uso:
     python comparar_modelos.py \
-        --actual app/assets/modelos/mazorca/modelo.tflite \
+        --actual android/app/src/main/assets/modelos/mazorca/modelo.tflite \
         --nuevo salidas/mazorca/mazorca_int8.tflite \
         --datos datos/mazorca/test \
         --etiquetas salidas/mazorca/etiquetas.txt

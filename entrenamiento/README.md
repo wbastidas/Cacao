@@ -219,7 +219,7 @@ modelo y el script se niega a recomendarlo.
 
 ```bash
 python comparar_modelos.py \
-    --actual ../app/assets/modelos/mazorca/modelo.tflite \
+    --actual ../android/app/src/main/assets/modelos/mazorca/modelo.tflite \
     --nuevo salidas/mazorca/mazorca_int8.tflite \
     --datos datos/mazorca/test \
     --etiquetas salidas/mazorca/etiquetas.txt \
@@ -240,7 +240,8 @@ python herramientas/instalar_modelo.py --tarea mazorca
 ```
 
 Copia `modelo.tflite`, `etiquetas.txt` y `metadatos.json` a
-`app/assets/modelos/mazorca/`. **Se niega a instalar un modelo que no cumple las metas**
+`android/app/src/main/assets/modelos/mazorca/`. **Se niega a instalar un modelo que no
+cumple las metas**
 a menos que pases `--forzar`.
 
 ---

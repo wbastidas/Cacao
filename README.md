@@ -1,8 +1,9 @@
 # CacaoTrace
 
-Aplicación móvil **offline-first** para la producción *bean-to-bar* de chocolate 90 % con cacao
-CCN-51, desde la recepción de mazorcas hasta la venta, con análisis de imágenes por
-inteligencia artificial que corre **dentro del teléfono** y trazabilidad para trámites ARCSA.
+Aplicación **Android nativa** y **offline-first** para la producción *bean-to-bar* de
+chocolate 90 % con cacao CCN-51, desde la recepción de mazorcas hasta la venta, con
+análisis de imágenes por inteligencia artificial que corre **dentro del teléfono** y
+trazabilidad para trámites ARCSA.
 
 Implementación de la *Especificación de Requerimientos de Software (ERS) v1.0*, basada en
 ISO/IEC/IEEE 29148. Ver [`docs/ERS.md`](docs/ERS.md) para el documento completo y
@@ -14,16 +15,28 @@ ISO/IEC/IEEE 29148. Ver [`docs/ERS.md`](docs/ERS.md) para el documento completo 
 
 ```
 Cacao/
-├── app/              Aplicación Flutter (Android 8.0+, iOS 15+ opcional)
-│   ├── lib/
-│   │   ├── nucleo/       Reglas de negocio puras (norma INEN 176, RN-01..RN-17)
-│   │   ├── datos/        Base SQLite con Drift + cola de sincronización
-│   │   ├── ia/           Inferencia TFLite (modelos M1–M4)
-│   │   └── ui/           Pantallas
-│   └── test/         Tests unitarios del núcleo
-├── entrenamiento/    Pipeline Python para entrenar y exportar los modelos M1–M4
-└── docs/             ERS, arquitectura, trazabilidad, guías de operación
+├── android/                  App Android (Kotlin, minSdk 26)
+│   ├── nucleo/                 Módulo Kotlin/JVM PURO, sin Android
+│   │   └── …/nucleo/             · norma INEN 176 (prueba de corte)
+│   │                             · motor de reglas RN-01..RN-17
+│   │                             · balance de masa, recetas, códigos
+│   └── app/                    Módulo Android
+│       └── …/ec/cacaotrace/      · datos/    Room + cola de sincronización
+│                                 · ia/       LiteRT (modelos M1–M4)
+│                                 · ui/       Jetpack Compose, Material 3
+│                                 · informes/ PDF y CSV
+│                                 · trabajo/  WorkManager (avisos, sync)
+├── entrenamiento/            Pipeline Python para entrenar y exportar M1–M4
+├── referencia/flutter-app/   Primera implementación en Flutter, como referencia
+└── docs/                     ERS, arquitectura, trazabilidad, guías de operación
 ```
+
+> **Nota sobre la plataforma.** La ERS v1.0 proponía Flutter en su §3. El cliente pidió
+> después **Android nativo en Kotlin**, y eso es lo que se entrega. No cambia ningún
+> requisito: las capas, el modelo de datos y la estrategia offline-first son los mismos.
+> La app Flutter completa se conserva en `referencia/flutter-app/` para contrastar
+> comportamiento; no se compila ni se publica. Ver §8 de
+> [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
 
 ## Estado por fases
 
@@ -41,28 +54,31 @@ El detalle requerimiento por requerimiento está en
 > La **capa de nube** (Firebase Auth/Firestore, Google Drive) está implementada como
 > interfaz + cola de sincronización con un adaptador local. Para activarla en producción
 > basta implementar `SincronizadorRemoto` y añadir `google-services.json`; ver
-> [`docs/NUBE.md`](docs/NUBE.md). La app funciona al 100 % sin ninguna de esas credenciales.
+> [`docs/NUBE.md`](docs/NUBE.md). La app funciona al 100 % sin ninguna de esas
+> credenciales.
 
 ## Cómo empezar
 
-### 1. Correr la app
+### 1. Probar las reglas de negocio (no hace falta el SDK de Android)
 
 ```bash
-cd app
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs   # genera el código de Drift
-flutter run
+cd android
+gradle :nucleo:test --configure-on-demand
 ```
 
-Para generar el APK de instalación:
+`:nucleo` es Kotlin puro: la norma INEN 176, las 17 reglas de negocio, el balance de masa
+y las recetas corren en la JVM, en segundos, sin emulador.
+
+### 2. Compilar la app
 
 ```bash
-flutter build apk --release      # app/build/app/outputs/flutter-apk/app-release.apk
+cd android
+gradle :app:assembleDebug     # o abrir la carpeta android/ en Android Studio
 ```
 
-Detalles y requisitos en [`docs/COMPILAR.md`](docs/COMPILAR.md).
+Detalles, firma y publicación en [`docs/COMPILAR.md`](docs/COMPILAR.md).
 
-### 2. Entrenar los modelos de IA
+### 3. Entrenar los modelos de IA
 
 Todo el proceso, paso a paso y sin instalar nada en tu computadora, está en
 [`entrenamiento/README.md`](entrenamiento/README.md). Resumen:
@@ -81,7 +97,7 @@ python entrenar_clasificador.py --datos datos/mazorca --tarea mazorca
 python herramientas/instalar_modelo.py --tarea mazorca
 ```
 
-### 3. Verificar que todo funciona sin fotos reales
+### 4. Verificar que todo funciona sin fotos reales
 
 ```bash
 cd entrenamiento
@@ -89,32 +105,38 @@ python herramientas/generar_datos_sinteticos.py --salida fuentes --tarea mazorca
 bash herramientas/smoke_test.sh
 ```
 
-## Qué está verificado
+## Qué está verificado, y qué no
+
+**Ejecutado y en verde:**
 
 ```
-flutter analyze     sin observaciones
-flutter test        118 tests en verde
-pytest              35 tests de la norma INEN 176
-smoke_test.sh       pipeline de entrenamiento completo, incluido YOLO
+gradle :nucleo:test    131 pruebas del núcleo Kotlin
+pytest                  35 pruebas de la norma INEN 176 en Python
+smoke_test.sh           pipeline de entrenamiento completo, incluido YOLO
 ```
 
-Los tests de la norma están **compartidos entre Python y Dart**: los dos leen
-`entrenamiento/pruebas/casos_norma.json`, así que si una implementación se
-desvía de la otra, sus tests fallan.
+Los casos de la norma están **compartidos entre Python y Kotlin**: los dos leen
+`entrenamiento/pruebas/casos_norma.json`, así que si una implementación se desvía de la
+otra, sus pruebas fallan.
 
-No se ha compilado el APK en este entorno porque no tiene el Android SDK
-instalado; los pasos están en [`docs/COMPILAR.md`](docs/COMPILAR.md).
+**Escrito pero no compilado:** el módulo `:app`. El entorno donde se desarrolló no tiene
+el SDK de Android y su proxy de salida bloquea `dl.google.com`, del que depende
+`maven.google.com` para resolver AndroidX, Compose y Room. La primera compilación hay que
+hacerla en una máquina con el SDK, y es razonable esperar ajustes menores. Los pasos están
+en [`docs/COMPILAR.md`](docs/COMPILAR.md).
 
 ## Principios de diseño
 
 1. **Offline-first real.** Cada registro se escribe primero en SQLite y se marca
-   `pendiente`. La nube es un espejo, nunca la fuente de verdad.
+   `PENDIENTE`. La nube es un espejo, nunca la fuente de verdad.
 2. **La IA es de apoyo, no autoridad.** El usuario siempre puede corregir; la corrección
-   manda y se guarda para reentrenar (RF-IA-03, RF-IA-07).
+   manda y se guarda para reentrenar (RF-IA-03, RF-IA-07). Sin modelos instalados, la app
+   funciona entera a mano.
 3. **Nada queda cableado.** Umbrales, tabla de la norma y versiones de modelo son datos
    editables, no constantes en el código (RNF-12).
-4. **Español simple.** Sin tecnicismos sin explicar; botones ≥ 48 dp, texto ≥ 16 sp,
-   alto contraste para uso al sol (RNF-09, RNF-10).
+4. **Español simple.** Sin tecnicismos sin explicar; botones ≥ 48 dp, texto ≥ 16 sp, alto
+   contraste para uso al sol, y el color nunca solo: siempre con icono y texto
+   (RNF-09, RNF-10).
 
 ## Aviso sobre la norma y los análisis
 
