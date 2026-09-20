@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fondo del icono adaptativo: el marrón del cacao tostado de la marca.
+         Va aquí y no dentro del XML del icono porque el sistema lo pide como
+         recurso de color, no como valor literal. -->
+    <color name="fondo_icono">#4A2B18</color>
+</resources>

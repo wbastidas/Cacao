@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Icono adaptativo. Basta con esta versión y no hacen falta PNG por densidad
+    porque la app pide Android 8.0 como mínimo (RNF-13), y los iconos
+    adaptativos existen justo desde esa versión.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/fondo_icono" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_notificacion" />
+</adaptive-icon>

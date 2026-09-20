@@ -145,7 +145,10 @@ class ServicioNotificaciones(private val contexto: Context) {
             contexto,
             if (esAlerta) CANAL_ALERTAS else CANAL_RECORDATORIOS,
         )
-            .setSmallIcon(R.mipmap.ic_launcher)
+            // Silueta monocroma, no el icono del lanzador: Android pinta de
+            // blanco entero el icono pequeño, así que uno a color se vería
+            // como una mancha sin forma.
+            .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(titulo)
             .setContentText(cuerpo)
             .setStyle(NotificationCompat.BigTextStyle().bigText(cuerpo))

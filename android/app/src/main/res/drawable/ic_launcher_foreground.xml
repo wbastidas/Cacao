@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Primer plano del icono: una mazorca de CCN-51 madura.
+
+    El lienzo del icono adaptativo es de 108x108, pero el sistema recorta los
+    bordes según la forma que use cada lanzador (círculo, cuadrado redondeado,
+    gota). Solo los 72x72 centrales están garantizados, así que todo el dibujo
+    se mantiene dentro de esa zona: de lo contrario, en unos teléfonos se vería
+    la mazorca con la punta cortada y en otros no.
+
+    El color ámbar es el de la mazorca madura de CCN-51, que es lo que la
+    diferencia de un cacao Nacional: pasa de verde a amarillo anaranjado.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Tallo -->
+    <path
+        android:fillColor="#5D4037"
+        android:pathData="M52,22 L52,29 L56,29 L56,22 Z" />
+
+    <!-- Hoja -->
+    <path
+        android:fillColor="#558B2F"
+        android:pathData="M56,25 C63,20 70,21 72,24 C69,29 62,30 56,27 Z" />
+
+    <!-- Cuerpo de la mazorca -->
+    <path
+        android:fillColor="#F4A93C"
+        android:pathData="M54,28 C62,32 70,41 70,55 C70,71 63,84 54,87 C45,84 38,71 38,55 C38,41 46,32 54,28 Z" />
+
+    <!-- Surcos: son la marca de la mazorca y lo que la hace reconocible
+         aunque el icono se vea a 48 dp en la pantalla de inicio. -->
+    <path
+        android:strokeColor="#C77C1E"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M54,33 C54,47 54,70 54,83" />
+    <path
+        android:strokeColor="#C77C1E"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M45,35 C41,49 42,70 47,82" />
+    <path
+        android:strokeColor="#C77C1E"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M63,35 C67,49 66,70 61,82" />
+</vector>
