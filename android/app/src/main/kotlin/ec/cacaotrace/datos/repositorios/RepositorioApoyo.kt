@@ -47,6 +47,11 @@ class RepositorioApoyo(
 
     private suspend fun motor() = MotorReglas(config.umbrales())
 
+    /** Las clases que cuentan como defecto en el panel, en el orden de la norma. */
+    private val clasesDefecto = listOf(
+        "violeta", "pizarroso", "mohoso", "dano_insectos", "germinado", "vano_plano",
+    )
+
     // ------------------------------------------------------------ inventario
 
     /**
@@ -269,6 +274,10 @@ class RepositorioApoyo(
 
     fun observarLaboratorio(): Flow<List<LaboratorioEntidad>> = bd.laboratorio().observarTodos()
 
+    /** Los análisis de un lote, para el reporte y la pantalla de detalle. */
+    suspend fun laboratorioDeLote(loteId: String): List<LaboratorioEntidad> =
+        bd.laboratorio().deLote(loteId)
+
     /**
      * Guarda un resultado de laboratorio y aplica RN-15 (cadmio).
      *
@@ -485,6 +494,76 @@ class RepositorioApoyo(
         }
     }
 
+    /**
+     * Las series que dibuja el panel (RF-TAB-03).
+     *
+     * Se calculan aquí y no en la pantalla por el mismo motivo que todo lo
+     * demás: si la pantalla hablara con Room, cada gráfico tendría que
+     * acordarse de filtrar los registros eliminados y las pruebas parciales.
+     */
+    suspend fun seriesDelPanel(): SeriesPanel {
+        val lotes = bd.lotes().todos().associateBy { it.id }
+
+        // Solo las pruebas completas definen el grado del lote: una prueba
+        // parcial del día 5 es orientativa y mezclarla falsearía la media.
+        val pruebas = bd.pruebasCorte().completas().filter { !it.esParcial }
+
+        val fermentadoPorLote = pruebas.mapNotNull { p ->
+            val codigo = lotes[p.loteId]?.codigo ?: return@mapNotNull null
+            val pct = runCatching {
+                json.parseToJsonElement(p.porcentajesJson).jsonObject["fermentado_total"]
+                    ?.jsonPrimitive?.content?.toDouble()
+            }.getOrNull() ?: return@mapNotNull null
+            PuntoSerie(codigo, pct)
+        }
+
+        val defectosPorClase = mutableMapOf<String, Double>()
+        for (p in pruebas) {
+            val objeto = runCatching {
+                json.parseToJsonElement(p.porcentajesJson).jsonObject
+            }.getOrNull() ?: continue
+            for (clase in clasesDefecto) {
+                val valor = objeto[clase]?.jsonPrimitive?.content?.toDoubleOrNull() ?: continue
+                defectosPorClase[clase] = (defectosPorClase[clase] ?: 0.0) + valor
+            }
+        }
+        val defectos = defectosPorClase
+            .mapValues { (_, suma) -> if (pruebas.isEmpty()) 0.0 else suma / pruebas.size }
+            .filterValues { it > 0 }
+            .map { (clase, media) -> PuntoSerie(clase, media) }
+            .sortedByDescending { it.valor }
+
+        // La curva de la fermentación en curso más reciente: es la que el
+        // usuario está mirando de verdad cuando abre el panel.
+        val enCurso = bd.fermentaciones().todasEnCurso().maxByOrNull { it.inicio }
+        val curva = enCurso?.let { f ->
+            bd.fermentaciones().lecturas(f.id)
+                .filter { it.tempC != null }
+                .sortedBy { it.fechaHora }
+                .map { l ->
+                    PuntoSerie(
+                        etiqueta = formatear(
+                            Duration.between(f.inicio, l.fechaHora).toMinutes() / 60.0,
+                            0,
+                        ),
+                        valor = l.tempC ?: 0.0,
+                    )
+                }
+        }.orEmpty()
+
+        val gradoPorLote = pruebas.groupingBy { it.resultado }.eachCount()
+            .map { (grado, cuantos) -> PuntoSerie(grado, cuantos.toDouble()) }
+            .sortedByDescending { it.valor }
+
+        return SeriesPanel(
+            fermentadoPorLote = fermentadoPorLote,
+            defectosPromedio = defectos,
+            curvaFermentacion = curva,
+            loteDeLaCurva = enCurso?.let { lotes[it.loteId]?.codigo }.orEmpty(),
+            gradoPorLote = gradoPorLote,
+        )
+    }
+
     /** Lo que hay que hacer hoy, juntando todos los lotes (RF-TAB-01). */
     suspend fun tareasDeHoy(): List<TareaDelDia> {
         val lotes = bd.lotes().todos()
@@ -582,6 +661,18 @@ class RepositorioApoyo(
         return tareas.sortedByDescending { it.urgente }
     }
 }
+
+/** Un punto de una serie del panel: una etiqueta y un número. */
+data class PuntoSerie(val etiqueta: String, val valor: Double)
+
+/** Todo lo que dibuja el panel, calculado de una vez (RF-TAB-03). */
+data class SeriesPanel(
+    val fermentadoPorLote: List<PuntoSerie> = emptyList(),
+    val defectosPromedio: List<PuntoSerie> = emptyList(),
+    val curvaFermentacion: List<PuntoSerie> = emptyList(),
+    val loteDeLaCurva: String = "",
+    val gradoPorLote: List<PuntoSerie> = emptyList(),
+)
 
 /** Existencia actual de un artículo. */
 data class Existencia(

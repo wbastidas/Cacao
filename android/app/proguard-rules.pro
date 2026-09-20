@@ -4,9 +4,7 @@
 # reglas el APK compila, pero los modelos fallan al abrirse en el teléfono, que
 # es el peor momento para enterarse.
 -keep class org.tensorflow.** { *; }
--keep class com.google.ai.edge.litert.** { *; }
 -dontwarn org.tensorflow.**
--dontwarn com.google.ai.edge.litert.**
 
 # ML Kit para el escáner de QR
 -keep class com.google.mlkit.** { *; }
