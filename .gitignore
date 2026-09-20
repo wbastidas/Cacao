@@ -51,3 +51,16 @@ runs/
 # Codigo generado por build_runner (ver docs/COMPILAR.md)
 app/lib/**/*.g.dart
 app/lib/**/*.freezed.dart
+
+# ---------- Android / Gradle ----------
+android/.gradle/
+android/build/
+android/*/build/
+android/local.properties
+android/key.properties
+android/app/google-services.json
+android/.kotlin/
+*.apk
+*.aab
+*.jks
+*.keystore
