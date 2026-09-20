@@ -352,7 +352,119 @@ entorno de trabajo**, que es justo lo que más le falta a los datasets abiertos.
 
 ---
 
-## 9. Problemas frecuentes
+## 9. Plan realista de recolección, lote a lote
+
+Las secciones anteriores explican **cómo** entrenar. Esta explica **cuándo vas a
+tener con qué**, que es la pregunta que de verdad decide el calendario.
+
+El detalle que lo cambia todo: estas fotos no se pueden tomar cuando uno quiere.
+Cada modelo necesita un momento concreto del proceso, y ese momento llega cuando
+llega el cacao.
+
+| Modelo | Solo se puede fotografiar… | Cuántas veces al año, con ~20 lotes |
+|---|---|---|
+| M1 mazorca | en la recepción, antes de abrir | 20 sesiones |
+| M2 prueba de corte | al hacer la prueba, tras el secado | 20–40 tableros |
+| M3 tostado | durante el tostado | tantas como tandas |
+| M4 chocolate | tras desmoldar, y días después | tantas como tandas |
+
+### El orden en que conviene atacarlos
+
+**No es el orden M1, M2, M3, M4.** Es este, y por un motivo concreto:
+
+**1.º M1 (mazorca) — el más rápido en llegar a meta.** Es el único que puede
+apoyarse en datasets abiertos, así que partes con la mayor parte del camino
+hecho y solo necesitas añadir mazorcas tuyas para que el modelo se adapte a tu
+luz y tu fondo. Una sesión de recepción da entre 30 y 50 fotos si fotografías
+las mazorcas de una en una.
+
+El cuello de botella no es la mazorca sana, de esa vas a tener de sobra: son la
+monilia y la fitóftora. Solo las tienes cuando llegan enfermas. Si un 5–10 % del
+lote viene con problema, cada recepción te deja 20–30 fotos de enfermas. **Con
+cuatro o cinco recepciones tienes las 100 por clase del mínimo**, es decir, una
+temporada de cosecha.
+
+> Cuando te llegue un lote especialmente enfermo, no lo vivas solo como pérdida:
+> es el único día en que puedes conseguir esas fotos. Fotografía todo lo que
+> puedas antes de descartarlo.
+
+**2.º M3 (tostado) y M4 (chocolate) — los que puedes forzar.** Aquí tienes algo
+que no tienes en los demás: **puedes provocar las clases que te faltan**.
+
+Para M3, en vez de esperar a acumular tandas, saca muestras del tostador cada
+pocos minutos en una sola sesión: del mismo lote salen granos crudos, claros,
+medios y oscuros. Y el quemado, que en producción normal no vas a tener nunca,
+lo consigues quemando a propósito un puñado de descarte. Una tarde bien
+organizada puede darte 15–20 fotos por clase.
+
+Para M4 pasa lo mismo, y es más importante todavía. Si trabajas bien, el fat
+bloom y el sugar bloom **casi no van a aparecer**, y acabarías con 200 fotos de
+barras perfectas y tres de defecto: con eso el modelo no aprende a reconocer el
+defecto, aprende a decir siempre "está bien". Hay que provocarlos:
+
+- **Fat bloom:** deja unas barras a 28–30 °C unos días, o mételas y sácalas del
+  refrigerador varias veces.
+- **Sugar bloom:** guarda unas barras destapadas en un sitio húmedo, o sácalas
+  frías al ambiente para que condensen.
+- **Sin brillo:** moldea a propósito sin atemperar.
+
+Gasta media docena de barras en esto. Son las barras más rentables que vas a
+hacer, porque son las que permiten que el modelo detecte el problema en las
+otras.
+
+**3.º M2 (prueba de corte) — el último, y va para largo.** Necesita 40 tableros
+etiquetados, y cada tablero es una prueba de corte completa. A una o dos por
+lote, son **entre 20 y 40 lotes: uno o dos años**. Además es el único que hay que
+etiquetar grano a grano, unos 4.000 granos.
+
+Esto no es un problema del plan, es la razón por la que la app se diseñó como se
+diseñó: **la prueba de corte manual no es un plan B provisional**. Es el camino
+normal durante uno o dos años, y por eso tiene botones grandes y está pensada
+para usarse cómodamente, no para salir del paso.
+
+### Un error que arruina el dataset sin que se note
+
+Cuando tengas pocos tableros vas a sentir la tentación de fotografiar el mismo
+tablero varias veces —otro ángulo, otra luz— para "tener más datos".
+
+Puedes hacerlo, pero con una condición: **todas las fotos del mismo tablero
+tienen que caer en la misma partición**. Si una foto de un tablero queda en
+entrenamiento y otra del mismo tablero en validación, el modelo ya vio esos
+granos exactos y la validación te va a dar un número buenísimo que es mentira.
+Vas a creer que tienes un modelo listo y en la app va a fallar.
+
+Por eso `preparar_dataset.py` tiene `--agrupar_por`:
+
+```bash
+python preparar_dataset.py --fuentes fuentes --salida datos/corte \
+    --mapeo mapeo_corte.json --agrupar_por '^(tablero_\d+)'
+```
+
+El valor es **una expresión regular con un grupo de captura**, y ese grupo es
+lo que identifica la toma. Con `^(tablero_\d+)`, las fotos `tablero_007_a.jpg`
+y `tablero_007_b.jpg` comparten el grupo `tablero_007` y viajan juntas a la
+misma partición. También se acepta la palabra `carpeta`, que agrupa por la
+carpeta que contiene cada foto. **Nombra las fotos pensando en esto desde el
+primer día**, porque reorganizar 4.000 granos ya etiquetados no lo quieres hacer.
+
+Lo mismo vale para M1: varias fotos de **la misma mazorca** son el mismo caso,
+no casos distintos. Ahí el patrón sería `'^(mazorca_\d+)'`.
+
+### Qué esperar, resumido
+
+| Momento | Qué vas a tener |
+|---|---|
+| Primera temporada (~5 lotes) | M1 cerca de meta; M3 y M4 si forzaste las clases |
+| Primer año (~20 lotes) | M1, M3 y M4 funcionando; M2 a medio camino |
+| Segundo año (~40 lotes) | M2 alcanzable |
+
+Mientras tanto la app funciona entera: el conteo manual, el registro, las
+alertas y los reportes no dependen de ningún modelo. Los modelos ahorran tiempo
+cuando llegan; no son el requisito para empezar.
+
+---
+
+## 10. Problemas frecuentes
 
 | Síntoma | Causa probable | Qué hacer |
 |---|---|---|

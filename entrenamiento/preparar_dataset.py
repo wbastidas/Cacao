@@ -70,7 +70,18 @@ def clave_grupo(ruta: Path, patron: str | None) -> str:
     if patron == "carpeta":
         return str(ruta.parent)
     m = re.search(patron, ruta.name)
-    return m.group(1) if m else str(ruta)
+    if m is None:
+        return str(ruta)
+    if m.re.groups == 0:
+        # Sin grupo de captura no hay nada que agrupar. Es un error fácil de
+        # cometer (pasar 'tablero' en vez de '^(tablero_\d+)') y antes se
+        # manifestaba como un IndexError ilegible a mitad de la ejecución.
+        raise ValueError(
+            f"El patrón de --agrupar_por debe llevar un grupo de captura entre "
+            f"paréntesis; recibí {patron!r}. Por ejemplo: '^(tablero_\\d+)'. "
+            f"También se acepta la palabra 'carpeta'."
+        )
+    return m.group(1)
 
 
 def recolectar(fuentes: Path, mapeo: dict, patron_grupo: str | None):
@@ -183,7 +194,13 @@ def main(argv=None) -> int:
 
     aleatorio = random.Random(a.semilla)
     mapeo = json.loads(a.mapeo.read_text(encoding="utf-8"))
-    por_clase = recolectar(a.fuentes, mapeo, a.agrupar_por)
+    try:
+        por_clase = recolectar(a.fuentes, mapeo, a.agrupar_por)
+    except ValueError as fallo:
+        # Un patrón de agrupación mal escrito es error del usuario, no un fallo
+        # del programa: se dice en una línea, sin traza.
+        print(f"[ERROR] {fallo}")
+        return 1
 
     if not por_clase:
         print("[ERROR] No se encontró ninguna imagen. Revisa --fuentes y el mapeo.")
