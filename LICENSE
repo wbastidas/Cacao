@@ -1,0 +1,25 @@
+Copyright (c) 2026 Washington Bastidas
+
+Todos los derechos reservados.
+
+Este software y su documentación son propiedad del titular del copyright. No se
+concede ninguna licencia de uso, copia, modificación o distribución salvo
+autorización expresa y por escrito del titular.
+
+NOTA: si más adelante deseas publicar CacaoTrace como software libre (por ejemplo
+bajo MIT, Apache-2.0 o AGPL-3.0), reemplaza el texto de este archivo por el de la
+licencia elegida. Se ha dejado "todos los derechos reservados" por ser el estado
+por defecto de la ley de derecho de autor y la opción que no compromete decisiones
+comerciales futuras.
+
+-------------------------------------------------------------------------------
+COMPONENTES DE TERCEROS
+
+Este proyecto usa bibliotecas de terceros con sus propias licencias (Flutter, Drift,
+TensorFlow, Ultralytics, entre otras). Ultralytics YOLO se distribuye bajo AGPL-3.0:
+si distribuyes un modelo entrenado con Ultralytics dentro de un producto comercial,
+revisa sus condiciones o adquiere su licencia empresarial.
+
+Los conjuntos de datos de terceros conservan sus licencias originales. En particular,
+el dataset de prueba de corte de Santos et al. (2019) es CC BY-NC-ND 4.0 y NO puede
+usarse para entrenar un modelo de uso comercial. Ver entrenamiento/README.md.
