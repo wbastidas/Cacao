@@ -41,6 +41,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
         // abrir las mazorcas" aparece aunque el teléfono estuviera apagado.
         await s.lotes.revisarReposos();
         await s.apoyo.cerrarRegistrosBpmVencidos();
+        // Los recordatorios se recalculan desde la base, no se van
+        // acumulando: si el teléfono estuvo apagado, al abrirlo quedan al día.
+        await s.reprogramarAvisos();
         return s.apoyo.tareasDeHoy();
       }();
       _estadoSync = s.sync.estadoActual();

@@ -30,9 +30,13 @@ Cacao/
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0. Datos y modelos | Pipeline de entrenamiento, protocolo de fotos, notebook Colab | ✅ Listo para cargar fotos |
-| 1. MVP | Lotes+QR, recepción (M1), apertura, fermentación, secado, prueba de corte, alertas, guías, sincronización | ✅ Implementado |
+| 1. MVP | Lotes+QR, recepción (M1), apertura, fermentación, secado, prueba de corte, alertas, guías, sincronización local | ✅ Implementado |
 | 2. Calidad | M2 en prueba de corte, almacenamiento, tostado, refinado, atemperado, reportes PDF, panel | ✅ Implementado |
-| 3. Venta | Inventario, costos, ventas, BPM, laboratorio, etiquetas, sensor BLE, M3/M4 | ✅ Implementado |
+| 3. Venta | Inventario, costos, ventas, BPM, laboratorio, notificaciones, M3/M4 | ✅ Implementado |
+| — | Firebase/Drive, sensor ESP32 por Bluetooth, segunda opinión con Gemini | ⛔ Pendientes (necesitan credenciales o el dispositivo) |
+
+El detalle requerimiento por requerimiento está en
+[`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md).
 
 > La **capa de nube** (Firebase Auth/Firestore, Google Drive) está implementada como
 > interfaz + cola de sincronización con un adaptador local. Para activarla en producción
@@ -84,6 +88,22 @@ cd entrenamiento
 python herramientas/generar_datos_sinteticos.py --salida fuentes --tarea mazorca
 bash herramientas/smoke_test.sh
 ```
+
+## Qué está verificado
+
+```
+flutter analyze     sin observaciones
+flutter test        118 tests en verde
+pytest              35 tests de la norma INEN 176
+smoke_test.sh       pipeline de entrenamiento completo, incluido YOLO
+```
+
+Los tests de la norma están **compartidos entre Python y Dart**: los dos leen
+`entrenamiento/pruebas/casos_norma.json`, así que si una implementación se
+desvía de la otra, sus tests fallan.
+
+No se ha compilado el APK en este entorno porque no tiene el Android SDK
+instalado; los pasos están en [`docs/COMPILAR.md`](docs/COMPILAR.md).
 
 ## Principios de diseño
 

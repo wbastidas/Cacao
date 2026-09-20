@@ -15,6 +15,8 @@ import 'datos/repositorios/repositorio_apoyo.dart';
 import 'datos/repositorios/repositorio_configuracion.dart';
 import 'datos/repositorios/repositorio_lotes.dart';
 import 'datos/repositorios/repositorio_produccion.dart';
+import 'datos/planificador_avisos.dart';
+import 'datos/servicio_notificaciones.dart';
 import 'datos/sync/servicio_sincronizacion.dart';
 import 'datos/sync/sincronizador_remoto.dart';
 import 'ia/servicio_modelos.dart';
@@ -29,6 +31,7 @@ class Servicios {
     required this.produccion,
     required this.apoyo,
     required this.modelos,
+    required this.notificaciones,
   });
 
   final BaseDatos bd;
@@ -39,6 +42,17 @@ class Servicios {
   final RepositorioProduccion produccion;
   final RepositorioApoyo apoyo;
   final ServicioModelos modelos;
+  final ServicioNotificaciones notificaciones;
+
+  /// Recalcula todos los recordatorios a partir del estado de la base.
+  ///
+  /// Se llama al abrir la app: así los avisos siguen siendo correctos aunque
+  /// el teléfono haya estado apagado o el usuario haya cambiado un umbral.
+  Future<int> reprogramarAvisos() async {
+    final umbrales = await config.umbrales();
+    return PlanificadorAvisos(bd: bd, notificaciones: notificaciones)
+        .reprogramar(umbrales);
+  }
 
   /// Arranca todo. Los modelos de IA se cargan aparte y sin bloquear: si no
   /// están, la app funciona igual (RF-IA-01 se cumple cuando existan).
@@ -74,6 +88,7 @@ class Servicios {
           RepositorioProduccion(bd, sync, config: config, alertas: alertas),
       apoyo: RepositorioApoyo(bd, sync, config: config, alertas: alertas),
       modelos: ServicioModelos(),
+      notificaciones: ServicioNotificaciones(),
     );
 
     // No se espera: que falte un modelo no puede retrasar el arranque.
