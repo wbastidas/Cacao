@@ -47,3 +47,7 @@ entrenamiento/comparacion.json
 
 # Salidas que YOLO deja en la raiz al validar
 runs/
+
+# Codigo generado por build_runner (ver docs/COMPILAR.md)
+app/lib/**/*.g.dart
+app/lib/**/*.freezed.dart
