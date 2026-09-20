@@ -44,3 +44,6 @@ Thumbs.db
 # Generado por generar_datos_sinteticos.py
 entrenamiento/mapeo_*_sintetico.json
 entrenamiento/comparacion.json
+
+# Salidas que YOLO deja en la raiz al validar
+runs/
