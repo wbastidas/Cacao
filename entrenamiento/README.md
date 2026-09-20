@@ -275,6 +275,12 @@ mide directamente las dos cosas que decide la app:
 - **error del % de fermentados**: cuántos puntos se desvía del conteo del experto
   (meta: ≤ 5). Ese porcentaje es el que decide el grado del lote.
 
+**Sobre el archivo exportado.** Ultralytics cambió su API de exportación entre la
+versión 8.3 y la 8.4: `half=True` con `format="tflite"` pasó a ser `quantize=` con
+`format="litert"`, y **LiteRT ya no admite FP16** (solo INT8, `w8a16`, `w8a32` o FP32).
+El script prueba las dos formas automáticamente, así que funciona con cualquiera de las
+dos versiones; exporta en FP32, que es la referencia segura, y en INT8 si pasas `--int8`.
+
 Probar con una foto suelta:
 
 ```bash
@@ -354,5 +360,6 @@ entorno de trabajo**, que es justo lo que más le falta a los datasets abiertos.
 | Recall bajo en una sola clase | Muy pocas fotos de esa clase | Más fotos de esa clase; el balanceo automático no hace milagros |
 | `int8` pierde muchos puntos | La cuantización no le sienta a esa arquitectura | Usa `fp16`; el script ya lo recomienda solo |
 | El `.tflite` no carga | Conversión rota (típico de MobileNetV3 int8) | Usa `efficientnetv2b0` |
+| `quantize=16 (FP16) is not supported` al exportar M2 | Ultralytics 8.4 quitó el FP16 de LiteRT | Ya está resuelto en el script; si lo ves, actualiza el repositorio |
 | La curva de validación sube y luego baja | Sobreajuste | Menos épocas de ajuste fino, o más fotos |
 | `CUDA out of memory` en Colab | Lote demasiado grande | `--lote 16` o `--lote 8` |

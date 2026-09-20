@@ -14,7 +14,7 @@ pyyaml>=6.0                # data.yaml del detector
 # AVISO DE LICENCIA: Ultralytics se distribuye bajo AGPL-3.0. Si vas a distribuir
 # un modelo entrenado con él dentro de un producto comercial, revisa sus condiciones
 # o adquiere la licencia empresarial de Ultralytics.
-ultralytics>=8.3
+ultralytics>=8.3        # probado con 8.4.156; el script se adapta a la API de 8.3 y de 8.4
 
 # Solo para las pruebas automáticas del pipeline
 pytest>=7.4

@@ -50,6 +50,45 @@ META_ERROR_CONTEO = 3
 GRANOS_TABLERO = 100
 
 
+def _exportar_tflite(modelo, img: int, datos: str, con_int8: bool) -> dict:
+    """
+    Exporta a TFLite/LiteRT adaptándose a la versión de Ultralytics instalada.
+
+    La API cambió entre 8.3 y 8.4:
+      · 8.3  ->  model.export(format="tflite", half=True)  / int8=True
+      · 8.4  ->  model.export(format="litert", quantize=8)  y el FP16 ya NO se
+                 admite para LiteRT (solo 8, 'w8a16', 'w8a32', 32 o None).
+
+    Por eso aquí no se pide FP16: se exporta en FP32, que funciona en las dos
+    versiones y es la referencia segura, y aparte en INT8 si se pide, que pesa
+    la cuarta parte y corre más rápido en el teléfono.
+    """
+    exportados = {}
+
+    def intentar(nombre, **kwargs):
+        try:
+            ruta = modelo.export(imgsz=img, **kwargs)
+            exportados[nombre] = str(ruta)
+            print(f"Exportado ({nombre}): {ruta}")
+            return True
+        except (AssertionError, TypeError, ValueError) as e:
+            print(f"  [intento fallido] {nombre} con {kwargs}: {e}")
+            return False
+
+    # FP32: el que siempre debe salir.
+    if not (intentar("fp32", format="litert") or intentar("fp32", format="tflite")):
+        print("[ERROR] No se pudo exportar a TFLite en ningún formato. "
+              "Revisa la versión de ultralytics.")
+
+    if con_int8:
+        ok = (intentar("int8", format="litert", quantize=8, data=datos)
+              or intentar("int8", format="tflite", int8=True, data=datos))
+        if not ok:
+            print("[AVISO] No se pudo exportar a int8. Usa la versión fp32.")
+
+    return exportados
+
+
 def _nombres_clases(modelo) -> list[str]:
     return [modelo.names[i] for i in sorted(modelo.names)]
 
@@ -91,18 +130,7 @@ def entrenar(a) -> int:
     final = YOLO(str(mejor))
     clases = _nombres_clases(final)
 
-    # TFLite float16 (recomendado) y, si se pide, int8 (más rápido; revisar exactitud).
-    exportados = {}
-    ruta_fp16 = final.export(format="tflite", imgsz=a.img, half=True)
-    exportados["fp16"] = str(ruta_fp16)
-    print("Exportado:", ruta_fp16)
-    if a.int8:
-        try:
-            ruta_int8 = final.export(format="tflite", imgsz=a.img, int8=True, data=a.datos)
-            exportados["int8"] = str(ruta_int8)
-            print("Exportado:", ruta_int8)
-        except Exception as e:
-            print(f"[AVISO] No se pudo exportar a int8 ({e}). Usa la versión fp16.")
+    exportados = _exportar_tflite(final, a.img, a.datos, a.int8)
 
     cumple = map50 >= META_MAP50
     meta = {
