@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Solo lo que la app genera para compartir: reportes, CSV y las fotos
+         que el usuario decide enviar. Nunca la base de datos. -->
+    <cache-path name="compartidos" path="compartidos/" />
+    <files-path name="fotos" path="fotos/" />
+    <files-path name="reportes" path="reportes/" />
+</paths>

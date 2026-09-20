@@ -166,14 +166,14 @@ data class RequisitoNorma(
 }
 
 /**
- * Formatea un número con los decimales indicados.
+ * Formatea un número con los decimales indicados, SIEMPRE con punto decimal.
  *
- * Se hace a mano en vez de con `String.format` porque `:nucleo` es Kotlin puro
- * y `String.format` usa la configuración regional de la JVM: en un teléfono
- * con la coma como separador decimal, el texto saldría distinto al de los
- * tests y al de Python.
+ * Se hace a mano en vez de con `String.format` porque este usa la
+ * configuración regional de la JVM: en un teléfono configurado con coma
+ * decimal, el texto de las alertas saldría distinto al de Python y los tests
+ * compartidos fallarían. Toda la app formatea números por aquí.
  */
-internal fun formatear(valor: Double, decimales: Int): String {
+fun formatear(valor: Double, decimales: Int): String {
     if (decimales == 0) return kotlin.math.round(valor).toInt().toString()
     var factor = 1.0
     repeat(decimales) { factor *= 10 }

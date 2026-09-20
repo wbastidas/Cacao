@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Cámara: fotos de mazorcas, tableros, nibs y barras
+         (RF-REC-02, RF-PRC-03, RF-TOS-03, RF-ATE-04) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Estado de la red, para decidir cuándo vaciar la cola de sincronización
+         y para respetar "subir fotos solo con WiFi" (RF-SYN-03, RF-SYN-04) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Recordatorios de volteo, apertura e inspección (RF-ALE-02).
+         Son notificaciones LOCALES: suenan sin señal. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Ubicación OPCIONAL, solo para la trazabilidad de origen (RF-REC-06).
+         La app funciona completa sin concederlo. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- La cámara no es obligatoria: sin ella la app sigue sirviendo para
+         registrar y contar a mano, que es como se trabaja hoy sin app. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:name=".CacaoTraceApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/reglas_extraccion_datos"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/nombre_app"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CacaoTrace"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".ui.ActividadPrincipal"
+            android:exported="true"
+            android:label="@string/nombre_app"
+            android:theme="@style/Theme.CacaoTrace"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Vuelve a programar los recordatorios cuando el teléfono se
+             reinicia: las alarmas no sobreviven al apagado. -->
+        <receiver
+            android:name=".trabajo.ReceptorArranque"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".trabajo.ReceptorRecordatorio"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Comparte los PDF y CSV generados sin exponer la carpeta privada. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.archivos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rutas_archivos" />
+        </provider>
+    </application>
+</manifest>

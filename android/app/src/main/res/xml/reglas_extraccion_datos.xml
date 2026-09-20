@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- El respaldo automático de Android queda desactivado a propósito: la
+         base contiene los registros de producción del usuario y el respaldo
+         del proyecto es el explícito a su propio Drive (RF-SYN-07), no una
+         copia opaca en la nube de Google. -->
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" />
+    </device-transfer>
+</data-extraction-rules>
