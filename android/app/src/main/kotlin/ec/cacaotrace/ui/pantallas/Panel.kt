@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,6 +46,7 @@ import ec.cacaotrace.ContenedorApp
 import ec.cacaotrace.datos.repositorios.PuntoSerie
 import ec.cacaotrace.datos.repositorios.SeriesPanel
 import ec.cacaotrace.ui.ColoresEstado
+import ec.cacaotrace.ui.Rutas
 import ec.cacaotrace.ui.comun.BarraSuperior
 import ec.cacaotrace.ui.comun.Formato
 import ec.cacaotrace.ui.comun.TarjetaSeccion
@@ -69,7 +73,18 @@ fun PantallaPanel(contenedor: ContenedorApp, navegacion: NavHostController) {
         series = contenedor.apoyo.seriesDelPanel()
     }
 
-    Scaffold(topBar = { BarraSuperior("Panel", navegacion) }) { relleno ->
+    Scaffold(
+        topBar = {
+            BarraSuperior("Panel", navegacion) {
+                IconButton(onClick = { navegacion.navigate(Rutas.COMPARAR) }) {
+                    Icon(
+                        Icons.Default.CompareArrows,
+                        contentDescription = "Comparar dos lotes",
+                    )
+                }
+            }
+        },
+    ) { relleno ->
         Column(
             Modifier
                 .fillMaxSize()

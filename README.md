@@ -110,7 +110,7 @@ bash herramientas/smoke_test.sh
 **Ejecutado y en verde:**
 
 ```
-gradle :nucleo:test    131 pruebas del núcleo Kotlin
+gradle :nucleo:test    142 pruebas del núcleo Kotlin
 pytest                  35 pruebas de la norma INEN 176 en Python
 smoke_test.sh           pipeline de entrenamiento completo, incluido YOLO
 ```
@@ -140,11 +140,16 @@ en [`docs/COMPILAR.md`](docs/COMPILAR.md).
 
 ## Aviso sobre la norma y los análisis
 
-Los valores de la NTE INEN 176 incluidos en `entrenamiento/norma_inen176.json` son de
+Los valores de la NTE INEN 176 incluidos en `entrenamiento/norma_inen176.json`, y los
+del semáforo nutricional del RTE INEN 022 en `nucleo/etiqueta/Semaforo.kt`, son de
 **referencia** y deben verificarse contra el texto oficial vigente antes de usarse con
 fines comerciales. La app permite editarlos sin reinstalar. El grado de calidad y el
 contenido de cadmio con validez legal dependen de la norma oficial y de un laboratorio
 acreditado, no de esta aplicación.
+
+La tabla nutricional que calcula la app es una **estimación a partir de la receta** y de
+la composición típica de cada ingrediente. Sirve para saber qué esperar y preparar el
+trámite; la etiqueta de un producto a la venta necesita un análisis bromatológico.
 
 ## Licencia
 

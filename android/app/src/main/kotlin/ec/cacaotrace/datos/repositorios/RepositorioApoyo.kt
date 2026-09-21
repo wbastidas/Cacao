@@ -42,6 +42,15 @@ class RepositorioApoyo(
     private val sync: ServicioSincronizacion,
     private val config: RepositorioConfiguracion,
     private val alertas: RepositorioAlertas,
+    /**
+     * De dónde sale la posición de las fotos (RF-REC-06).
+     *
+     * Se recibe como función y no como servicio para que el repositorio siga
+     * sin depender de Android y se pueda probar pasándole una posición fija.
+     * Por defecto no sella nada, que es el comportamiento correcto mientras
+     * el usuario no conceda el permiso.
+     */
+    private val ubicacionActual: suspend () -> Pair<Double, Double>? = { null },
 ) {
     private val json = Json { encodeDefaults = true }
 
@@ -420,6 +429,15 @@ class RepositorioApoyo(
         latitud: Double? = null,
         longitud: Double? = null,
     ): String {
+        // Si quien llama no trae posición, se intenta sellar aquí. Así las
+        // pantallas no tienen que acordarse de pedirla una por una, y una
+        // pantalla nueva la hereda sin hacer nada.
+        val posicion = if (latitud == null && longitud == null) {
+            runCatching { ubicacionActual() }.getOrNull()
+        } else {
+            null
+        }
+
         val foto = FotoEntidad(
             rutaLocal = rutaLocal,
             etapa = etapa,
@@ -428,8 +446,8 @@ class RepositorioApoyo(
             analisisIaJson = json.encodeToString(analisisIa),
             etiquetaUsuario = etiquetaUsuario,
             aptaDataset = aptaDataset,
-            latitud = latitud,
-            longitud = longitud,
+            latitud = latitud ?: posicion?.first,
+            longitud = longitud ?: posicion?.second,
         )
         bd.fotos().insertar(foto)
         sync.encolar("fotos", foto.id, "crear")
@@ -564,6 +582,62 @@ class RepositorioApoyo(
         )
     }
 
+    /**
+     * Los datos de un lote puestos uno al lado del otro (RF-TAB-03).
+     *
+     * Comparar dos lotes es la forma más directa de aprender del proceso: uno
+     * salió Grado 1 y otro Grado 2, y la respuesta a por qué suele estar en la
+     * temperatura máxima de fermentación o en los días de secado. Por eso se
+     * devuelven juntos los pocos números que explican el resultado, y no un
+     * volcado de todo lo registrado.
+     */
+    suspend fun resumenParaComparar(loteId: String): ResumenLote? {
+        val lote = bd.lotes().porId(loteId) ?: return null
+        val recepcion = bd.recepciones().deLote(loteId)
+        val apertura = bd.aperturas().deLote(loteId)
+        val fermentacion = bd.fermentaciones().deLote(loteId)
+        val secado = bd.secados().deLote(loteId)
+        val prueba = bd.pruebasCorte().deLote(loteId).lastOrNull { !it.esParcial }
+
+        val lecturas = fermentacion?.let { bd.fermentaciones().lecturas(it.id) }.orEmpty()
+        val temperaturas = lecturas.mapNotNull { it.tempC }
+
+        val fermentadoPct = prueba?.let { p ->
+            runCatching {
+                json.parseToJsonElement(p.porcentajesJson).jsonObject["fermentado_total"]
+                    ?.jsonPrimitive?.content?.toDouble()
+            }.getOrNull()
+        }
+
+        return ResumenLote(
+            loteId = loteId,
+            codigo = lote.codigo,
+            finca = lote.fincaId?.let { config.fincaPorId(it)?.nombre }.orEmpty(),
+            estado = lote.estado.etiqueta,
+            mazorcas = recepcion?.mazorcasTotal,
+            kgBaba = apertura?.kgBaba,
+            kgSeco = secado?.kgSeco,
+            horasFermentacion = fermentacion?.let { f ->
+                f.fin?.let { Duration.between(f.inicio, it).toHours() }
+            },
+            volteos = fermentacion?.let { bd.fermentaciones().volteos(it.id).size },
+            tempMaxima = temperaturas.maxOrNull(),
+            tempMinima = temperaturas.minOrNull(),
+            diasSecado = secado?.let { sec ->
+                sec.fin?.let { Duration.between(sec.inicio, it).toDays() }
+            },
+            metodoSecado = secado?.metodo?.etiqueta.orEmpty(),
+            humedadFinal = secado?.let { sec ->
+                bd.secados().lecturas(sec.id).lastOrNull { it.humedadGrano != null }
+                    ?.humedadGrano
+            },
+            resultadoCorte = prueba?.resultado.orEmpty(),
+            fermentadoPct = fermentadoPct,
+            conforme = prueba?.conforme,
+            alertas = alertas.deLote(loteId).size,
+        )
+    }
+
     /** Lo que hay que hacer hoy, juntando todos los lotes (RF-TAB-01). */
     suspend fun tareasDeHoy(): List<TareaDelDia> {
         val lotes = bd.lotes().todos()
@@ -660,6 +734,41 @@ class RepositorioApoyo(
 
         return tareas.sortedByDescending { it.urgente }
     }
+}
+
+/**
+ * Los números de un lote que sirven para compararlo con otro (RF-TAB-03).
+ *
+ * Todo es opcional porque un lote a medio proceso se compara igual: lo que
+ * todavía no se registró se muestra como «—», no impide la comparación.
+ */
+data class ResumenLote(
+    val loteId: String,
+    val codigo: String,
+    val finca: String = "",
+    val estado: String = "",
+    val mazorcas: Int? = null,
+    val kgBaba: Double? = null,
+    val kgSeco: Double? = null,
+    val horasFermentacion: Long? = null,
+    val volteos: Int? = null,
+    val tempMaxima: Double? = null,
+    val tempMinima: Double? = null,
+    val diasSecado: Long? = null,
+    val metodoSecado: String = "",
+    val humedadFinal: Double? = null,
+    val resultadoCorte: String = "",
+    val fermentadoPct: Double? = null,
+    val conforme: Boolean? = null,
+    val alertas: Int = 0,
+) {
+    /** Rendimiento de baba a grano seco, que es el número que más se mira. */
+    val rendimientoSecoPct: Double?
+        get() {
+            val baba = kgBaba ?: return null
+            val seco = kgSeco ?: return null
+            return if (baba <= 0) null else 100.0 * seco / baba
+        }
 }
 
 /** Un punto de una serie del panel: una etiqueta y un número. */

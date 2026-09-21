@@ -13,7 +13,7 @@ no repetirlo, `nucleo/...` significa
 `app/src/main/kotlin/ec/cacaotrace/...`.
 
 > **Sobre el estado de verificación.** Todo lo marcado ✅ en `nucleo/` está
-> **probado y ejecutándose** (131 pruebas en verde). Todo lo que vive en `app/`
+> **probado y ejecutándose** (142 pruebas en verde). Todo lo que vive en `app/`
 > está **escrito y revisado**, pero no compilado: el entorno de esta entrega no
 > tiene el SDK de Android. Ver la nota final de [`COMPILAR.md`](COMPILAR.md).
 
@@ -65,7 +65,7 @@ no repetirlo, `nucleo/...` significa
 | RF-REC-03 modo ráfaga con conteo | ✅ | `Recepcion.kt`, contador por clase |
 | RF-REC-04 descartes con motivo | ✅ | `Recepcion.kt` |
 | RF-REC-05 programar la apertura | ✅ | `guardarRecepcion` + `trabajo/PlanificadorAvisos.kt` |
-| RF-REC-06 GPS de la foto | 🟡 | columnas `latitud`/`longitud` en `fotos`; falta pedir el permiso en uso |
+| RF-REC-06 GPS de la foto | ✅ | `ubicacion/ServicioUbicacion.kt` (solo precisión gruesa, última posición conocida), permiso ofrecido una vez en `Recepcion.kt` |
 | RF-APE-01/02/03 apertura | ✅ | `ui/pantallas/Apertura.kt`, `RepositorioLotes.cascaraRecomendada` |
 | RF-FER-01 a 05, 07 fermentación | ✅ | `ui/pantallas/Fermentacion.kt` |
 | RF-FER-06 prueba parcial del día 5 | ✅ | `PruebaCorteEntidad.esParcial` + interruptor en `PruebaCorte.kt` |
@@ -85,7 +85,7 @@ no repetirlo, `nucleo/...` significa
 | RF-REF-01 a 04 refinado | ✅ | `nucleo/calculo/Receta.kt`, `SeccionRefinado` (calculadora + sensorial 1–5) |
 | RF-ATE-01 a 05 atemperado | ✅ | `SeccionAtemperado` (tres temperaturas, prueba del papel, M4, inspecciones) |
 | RF-EMP-01 empaque y vencimiento | ✅ | `RepositorioProduccion.guardarEmpaque`, `SeccionEmpaque` |
-| RF-EMP-02 datos de etiqueta | 🟡 | `etiquetaJson` con ingredientes, % de cacao y notificación sanitaria; falta el semáforo nutricional |
+| RF-EMP-02 datos de etiqueta | ✅ | `nucleo/etiqueta/` calcula la tabla nutricional desde la receta y el semáforo del RTE INEN 022; se muestra en `SeccionEmpaque` y se guarda con la tanda |
 | RF-EMP-03 QR público | ⛔ | marcado como futuro en la ERS |
 | RF-INV-01/02 inventario | ✅ | `RepositorioApoyo.existencias`, `ui/pantallas/Inventario.kt` |
 | RF-COS-01/02 costos | ✅ | `costosDeProduccion` con costo por barra y por kg de grano |
@@ -108,7 +108,7 @@ no repetirlo, `nucleo/...` significa
 | RF-COR-03 reporte de alertas del lote | ✅ | `correccionesDeLote` + línea de tiempo + sección del PDF |
 | RF-TAB-01 "¿Qué hago hoy?" | ✅ | `RepositorioApoyo.tareasDeHoy`, `ui/pantallas/Inicio.kt` |
 | RF-TAB-02 indicadores | ✅ | `RepositorioApoyo.indicadores`, `ui/pantallas/Panel.kt` |
-| RF-TAB-03 comparar lotes | 🟡 | `seriesDelPanel()` compara fermentación y grado entre lotes; falta la vista lado a lado de dos lotes concretos |
+| RF-TAB-03 comparar lotes | ✅ | `ui/pantallas/Comparar.kt` + `RepositorioApoyo.resumenParaComparar`; resalta las filas que más difieren |
 | RF-REP-01 exportar CSV | ✅ | `GeneradorPdf.csv`, botón en `ui/pantallas/Reporte.kt` |
 | RF-GUI-01 guías del proceso | ✅ | `ui/pantallas/Guias.kt` (9 guías, cada una con su error más común) |
 | RF-GUI-02 glosario | ✅ | pestaña "Glosario" de `Guias.kt` (18 términos) |
@@ -171,7 +171,7 @@ necesitó: `configuracion`, `stocks_minimos`, `checklists_bpm`, `auditoria`,
 | RNF-03 tamaño ≤ 150 MB | 🟡 | depende del tamaño final de los modelos |
 | RNF-04 batería | ✅ | WorkManager con restricciones; notificaciones inexactas |
 | RNF-05 seguridad | 🟡 | reglas de Firestore documentadas; falta cifrar la base local |
-| RNF-06 privacidad | 🟡 | avisos en la app; falta el texto legal completo |
+| RNF-06 privacidad | ✅ | `ui/pantallas/Privacidad.kt`: qué se guarda, qué no, dónde vive y los derechos de la LOPDP, en lenguaje sencillo |
 | RNF-07 confiabilidad | ✅ | escrituras compuestas en `withTransaction`; nada se guarda a medias |
 | RNF-08 respaldo | 🟡 | pendiente de la nube |
 | RNF-09 usabilidad | ✅ | volteo en un toque, áreas táctiles ≥ 48 dp |
@@ -189,6 +189,4 @@ necesitó: `configuracion`, `stocks_minimos`, `checklists_bpm`, `auditoria`,
 | Firebase Auth, Firestore, Drive | Necesita credenciales del usuario. La interfaz ya está definida; ver [`NUBE.md`](NUBE.md) |
 | Sensor ESP32 por Bluetooth | Necesita el dispositivo físico |
 | Segunda opinión con Gemini | Opcional en la ERS; requiere internet y cuenta |
-| Comparar dos lotes lado a lado | Marcado como deseable; el panel ya compara todos entre sí |
-| Semáforo nutricional de la etiqueta | Necesita la tabla nutricional del producto final |
 | Cifrado de la base local | Requiere SQLCipher; decisión de despliegue |

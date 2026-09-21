@@ -13,6 +13,7 @@ import ec.cacaotrace.ui.pantallas.PantallaAlertas
 import ec.cacaotrace.ui.pantallas.PantallaAlmacen
 import ec.cacaotrace.ui.pantallas.PantallaApertura
 import ec.cacaotrace.ui.pantallas.PantallaBpm
+import ec.cacaotrace.ui.pantallas.PantallaComparar
 import ec.cacaotrace.ui.pantallas.PantallaCorrecciones
 import ec.cacaotrace.ui.pantallas.PantallaDetalleLote
 import ec.cacaotrace.ui.pantallas.PantallaDetalleTanda
@@ -24,6 +25,7 @@ import ec.cacaotrace.ui.pantallas.PantallaInventario
 import ec.cacaotrace.ui.pantallas.PantallaLaboratorio
 import ec.cacaotrace.ui.pantallas.PantallaLotes
 import ec.cacaotrace.ui.pantallas.PantallaPanel
+import ec.cacaotrace.ui.pantallas.PantallaPrivacidad
 import ec.cacaotrace.ui.pantallas.PantallaProduccion
 import ec.cacaotrace.ui.pantallas.PantallaPruebaCorte
 import ec.cacaotrace.ui.pantallas.PantallaRecepcion
@@ -144,6 +146,8 @@ fun GrafoNavegacion(
         composable(Rutas.BPM) { PantallaBpm(contenedor, navegacion) }
         composable(Rutas.LABORATORIO) { PantallaLaboratorio(contenedor, navegacion) }
         composable(Rutas.GUIAS) { PantallaGuias(navegacion) }
+        composable(Rutas.COMPARAR) { PantallaComparar(contenedor, navegacion) }
+        composable(Rutas.PRIVACIDAD) { PantallaPrivacidad(navegacion) }
 
         composable(Rutas.ESCANER) {
             PantallaEscanerQr(

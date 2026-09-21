@@ -14,6 +14,7 @@ import ec.cacaotrace.datos.sync.SincronizadorLocal
 import ec.cacaotrace.ia.ServicioModelos
 import ec.cacaotrace.trabajo.PlanificadorAvisos
 import ec.cacaotrace.trabajo.ServicioNotificaciones
+import ec.cacaotrace.ubicacion.ServicioUbicacion
 
 /**
  * Punto único donde se arma la app.
@@ -51,7 +52,17 @@ class ContenedorApp(private val contexto: Context) {
         RepositorioProduccion(bd, sync, config, alertas)
     }
 
-    val apoyo: RepositorioApoyo by lazy { RepositorioApoyo(bd, sync, config, alertas) }
+    val ubicacion: ServicioUbicacion by lazy { ServicioUbicacion(contexto) }
+
+    /**
+     * El repositorio recibe la ubicación como función, no como servicio: así
+     * sigue sin conocer Android y la parte que sí lo conoce se queda aquí.
+     */
+    val apoyo: RepositorioApoyo by lazy {
+        RepositorioApoyo(bd, sync, config, alertas) {
+            ubicacion.actual()?.let { it.latitud to it.longitud }
+        }
+    }
 
     val modelos: ServicioModelos by lazy { ServicioModelos(contexto) }
 

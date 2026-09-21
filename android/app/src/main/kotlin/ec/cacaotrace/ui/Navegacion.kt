@@ -28,6 +28,8 @@ object Rutas {
     const val BPM = "bpm"
     const val LABORATORIO = "laboratorio"
     const val GUIAS = "guias"
+    const val COMPARAR = "comparar"
+    const val PRIVACIDAD = "privacidad"
     const val ESCANER = "escaner"
     const val TABLERO_PDF = "tablero-pdf"
 

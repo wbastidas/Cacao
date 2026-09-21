@@ -60,6 +60,9 @@ import ec.cacaotrace.ContenedorApp
 import ec.cacaotrace.datos.bd.entidades.LoteProduccionEntidad
 import ec.cacaotrace.datos.repositorios.ProduccionCompleta
 import ec.cacaotrace.datos.repositorios.ResumenCostos
+import ec.cacaotrace.nucleo.etiqueta.CalculadoraNutricional
+import ec.cacaotrace.nucleo.calculo.Receta
+import ec.cacaotrace.nucleo.etiqueta.TablaSemaforo
 import ec.cacaotrace.nucleo.modelo.EstadoLote
 import ec.cacaotrace.nucleo.modelo.MetodoAtemperado
 import ec.cacaotrace.ui.ColoresEstado
@@ -72,6 +75,8 @@ import ec.cacaotrace.ui.comun.CampoNumero
 import ec.cacaotrace.ui.comun.CodigoQr
 import ec.cacaotrace.ui.comun.EstadoVacio
 import ec.cacaotrace.ui.comun.FilaDato
+import ec.cacaotrace.ui.comun.SemaforoNutricional
+import ec.cacaotrace.ui.comun.lineasNutricionales
 import ec.cacaotrace.ui.comun.Formato
 import ec.cacaotrace.ui.comun.TarjetaSeccion
 import ec.cacaotrace.ui.comun.leerNumero
@@ -913,6 +918,26 @@ private fun SeccionEmpaque(
     val numeroBarras = barras.toIntOrNull()
     val pesoUnitario = leerNumero(peso)
 
+    // La tabla nutricional sale sola del refinado que ya se registró: la app
+    // sabe cuántos kilos de nibs, azúcar, manteca y lecitina entraron, así que
+    // no hay nada que teclear. Si aún no hay refinado, no se muestra.
+    val nutricion = remember(datos.refinado) {
+        datos.refinado?.takeIf { it.nibsKg > 0 }?.let { r ->
+            runCatching {
+                CalculadoraNutricional().calcular(
+                    Receta(
+                        kgNibs = r.nibsKg,
+                        kgAzucar = r.azucarKg,
+                        kgMantecaAnadida = r.mantecaKg,
+                        kgLecitina = r.lecitinaKg,
+                        porcentajeCacao = datos.produccion.porcentajeCacao,
+                    ),
+                )
+            }.getOrNull()
+        }
+    }
+    val tablaSemaforo = remember { TablaSemaforo.porDefecto() }
+
     TarjetaSeccion("5 · Empaque", icono = Icons.Default.Inventory2) {
         CampoNumero("Barras empacadas", barras, { barras = it }, decimales = false)
         CampoNumero("Peso por barra", peso, { peso = it }, unidad = "g")
@@ -948,6 +973,40 @@ private fun SeccionEmpaque(
             }
         }
 
+        // ---------------------------------------- semáforo (RF-EMP-02)
+        if (nutricion != null) {
+            Spacer(Modifier.height(16.dp))
+            SemaforoNutricional(nutricion, tablaSemaforo.evaluar(nutricion))
+
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Información nutricional por 100 g",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            lineasNutricionales(nutricion).forEach { (nombre, valor) ->
+                FilaDato(nombre, valor)
+            }
+            if (pesoUnitario != null && pesoUnitario > 0) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Por barra de ${Formato.numero(pesoUnitario, 0)} g",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                lineasNutricionales(nutricion.porPorcion(pesoUnitario))
+                    .forEach { (nombre, valor) -> FilaDato(nombre, valor) }
+            }
+        } else {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "El semáforo nutricional aparece en cuanto registres el refinado: " +
+                    "se calcula desde la receta, no hay que teclearlo.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
         Spacer(Modifier.height(8.dp))
         BotonGrande(
             texto = "Guardar el empaque",
@@ -969,6 +1028,19 @@ private fun SeccionEmpaque(
                         put("cacao", "${Formato.numero(datos.produccion.porcentajeCacao, 0)} % mínimo")
                         if (notificacion.isNotBlank()) {
                             put("notificacion_sanitaria", notificacion.trim())
+                        }
+                        // El semáforo y la tabla se guardan CON la tanda, no se
+                        // recalculan al imprimir: si mañana se corrige la
+                        // composición de referencia, la etiqueta que ya se
+                        // imprimió sigue diciendo lo que decía ese día.
+                        nutricion?.let { n ->
+                            tablaSemaforo.evaluar(n).forEach { (componente, nivel) ->
+                                put("semaforo_${componente.name.lowercase()}", nivel.name)
+                            }
+                            put("energia_kcal_100g", Formato.numero(n.energiaKcal, 0))
+                            put("grasas_g_100g", Formato.numero(n.grasasG, 1))
+                            put("azucares_g_100g", Formato.numero(n.azucaresG, 1))
+                            put("sodio_mg_100g", Formato.numero(n.sodioMg, 0))
                         }
                     },
                 )

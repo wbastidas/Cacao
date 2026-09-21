@@ -57,6 +57,7 @@ import ec.cacaotrace.ui.comun.Aviso
 import ec.cacaotrace.ui.comun.BarraSuperior
 import ec.cacaotrace.ui.comun.BotonGrande
 import ec.cacaotrace.ui.comun.CampoNumero
+import ec.cacaotrace.ui.comun.EstadoUbicacion
 import ec.cacaotrace.ui.comun.FilaDato
 import ec.cacaotrace.ui.comun.Formato
 import ec.cacaotrace.ui.comun.TarjetaSeccion
@@ -151,6 +152,9 @@ fun PantallaAjustes(contenedor: ContenedorApp, navegacion: NavHostController) {
                         },
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+                EstadoUbicacion(contenedor)
 
                 Spacer(Modifier.height(8.dp))
                 Aviso(
@@ -400,6 +404,12 @@ fun PantallaAjustes(contenedor: ContenedorApp, navegacion: NavHostController) {
                 }
                 TextButton(onClick = { navegacion.navigate(Rutas.almacen()) }) {
                     Text("Almacén")
+                }
+                TextButton(onClick = { navegacion.navigate(Rutas.COMPARAR) }) {
+                    Text("Comparar dos lotes")
+                }
+                TextButton(onClick = { navegacion.navigate(Rutas.PRIVACIDAD) }) {
+                    Text("Privacidad: qué se guarda y dónde")
                 }
             }
 

@@ -49,6 +49,7 @@ import ec.cacaotrace.ui.comun.BotonFotoIa
 import ec.cacaotrace.ui.comun.BotonGrande
 import ec.cacaotrace.ui.comun.CampoNumero
 import ec.cacaotrace.ui.comun.Formato
+import ec.cacaotrace.ui.comun.OfrecerUbicacion
 import ec.cacaotrace.ui.comun.TarjetaSeccion
 import ec.cacaotrace.ui.comun.leerNumero
 import kotlinx.coroutines.launch
@@ -103,6 +104,11 @@ fun PantallaRecepcion(
         ) {
             item {
                 aviso?.let { Aviso(texto = it, color = ColoresEstado.problema) }
+
+                // Se ofrece aquí y no en otra pantalla porque es donde el dato
+                // tiene sentido: la recepción es el momento en que se sabe de
+                // qué finca viene el lote (RF-REC-06).
+                OfrecerUbicacion(contenedor)
 
                 TarjetaSeccion("Lo que llegó", icono = Icons.Default.LocalShipping) {
                     Column {
