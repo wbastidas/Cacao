@@ -1,0 +1,73 @@
+name: cacaotrace
+description: "Trazabilidad y control de calidad bean-to-bar para cacao CCN-51"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- Base de datos local (la fuente de verdad, RF-SYN-01) ---
+  drift: ^2.28.0
+  drift_flutter: ^0.2.4
+  sqlite3_flutter_libs: ^0.5.26
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # --- Identificadores y formato ---
+  uuid: ^4.5.1
+  intl: ^0.20.2
+
+  # --- IA dentro del telefono, sin internet (RF-IA-01) ---
+  tflite_flutter: ^0.11.0
+
+  # --- Estado ---
+  provider: ^6.1.2
+
+  # --- Preferencias y umbrales en caché ---
+  shared_preferences: ^2.3.4
+
+  # --- QR de lotes y sacos (RF-LOT-01, RF-LOT-04, RF-ALM-01) ---
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
+
+  # --- Cámara y fotos (RF-IA-04) ---
+  image_picker: ^1.1.2
+  image: ^4.3.0
+
+  # --- Gráfica de la curva de fermentación (RF-FER-05) ---
+  fl_chart: ^0.69.2
+
+  # --- Notificaciones locales, funcionan sin internet (RF-ALE-02) ---
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+
+  # --- Reportes PDF de trazabilidad y BPM (RF-LOT-07, RF-BPM-03) ---
+  pdf: ^3.11.1
+  printing: ^5.13.4
+
+  # --- Compartir CSV y PDF (RF-REP-01) ---
+  share_plus: ^10.1.2
+  csv: ^6.0.0
+
+  # --- Estado de la conexión, para la cola de sincronización (RF-SYN-03/04) ---
+  connectivity_plus: ^6.1.0
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  drift_dev: ^2.28.0
+  build_runner: ^2.4.14
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/norma/
+    - assets/guias/
+    - assets/modelos/

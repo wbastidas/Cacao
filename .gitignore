@@ -40,3 +40,27 @@ yolo*.pt
 .DS_Store
 Thumbs.db
 *.log
+
+# Generado por generar_datos_sinteticos.py
+entrenamiento/mapeo_*_sintetico.json
+entrenamiento/comparacion.json
+
+# Salidas que YOLO deja en la raiz al validar
+runs/
+
+# Codigo generado por build_runner (ver docs/COMPILAR.md)
+app/lib/**/*.g.dart
+app/lib/**/*.freezed.dart
+
+# ---------- Android / Gradle ----------
+android/.gradle/
+android/build/
+android/*/build/
+android/local.properties
+android/key.properties
+android/app/google-services.json
+android/.kotlin/
+*.apk
+*.aab
+*.jks
+*.keystore

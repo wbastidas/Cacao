@@ -1,0 +1,255 @@
+{
+  "_nota": "Casos de prueba COMPARTIDOS entre la implementación Python (calificar_corte.py) y la implementación Dart de la app (lib/nucleo/norma/calificador_corte.dart). Si una de las dos se desvía, sus tests fallan. No edites este archivo sin actualizar las dos.",
+  "casos": [
+    {
+      "nombre": "lote bien fermentado: grado 1 pero pizarroso sobre el limite de CCN-51",
+      "conteo": {
+        "bien_fermentado": 70,
+        "ligeramente_fermentado": 9,
+        "violeta": 12,
+        "pizarroso": 6,
+        "mohoso": 1,
+        "vano_plano": 2
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": false,
+          "resultado": "CCN-51 no conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 1"
+        }
+      },
+      "porcentajes": {
+        "fermentado_bueno": 70.0,
+        "fermentado_ligero": 9.0,
+        "fermentado_total": 79.0,
+        "violeta": 12.0,
+        "pizarroso": 6.0,
+        "mohoso": 1.0,
+        "defectuoso": 2.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "lote excelente: cumple CCN-51 y grado 1",
+      "conteo": {
+        "bien_fermentado": 80,
+        "ligeramente_fermentado": 8,
+        "violeta": 8,
+        "pizarroso": 3,
+        "mohoso": 1
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": true,
+          "resultado": "CCN-51 conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 1"
+        }
+      },
+      "porcentajes": {
+        "fermentado_bueno": 80.0,
+        "fermentado_total": 88.0,
+        "violeta": 8.0,
+        "pizarroso": 3.0,
+        "mohoso": 1.0,
+        "defectuoso": 0.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "fermentacion que no arranco: muchos pizarrosos y violetas, fuera de grado",
+      "conteo": {
+        "bien_fermentado": 40,
+        "violeta": 40,
+        "pizarroso": 20
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": false,
+          "resultado": "CCN-51 no conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": false,
+          "resultado": "Fuera de grado"
+        }
+      },
+      "porcentajes": {
+        "fermentado_bueno": 40.0,
+        "fermentado_total": 40.0,
+        "violeta": 40.0,
+        "pizarroso": 20.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "grado 2: fermentado justo por encima de 65 y violeta bajo 21",
+      "conteo": {
+        "bien_fermentado": 60,
+        "ligeramente_fermentado": 8,
+        "violeta": 20,
+        "pizarroso": 10,
+        "mohoso": 2
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": false,
+          "resultado": "CCN-51 no conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 2"
+        }
+      },
+      "porcentajes": {
+        "fermentado_total": 68.0,
+        "violeta": 20.0,
+        "pizarroso": 10.0,
+        "mohoso": 2.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "grado 3: fermentado 55, violeta 25, pizarroso 17, mohoso 3",
+      "conteo": {
+        "bien_fermentado": 50,
+        "ligeramente_fermentado": 5,
+        "violeta": 25,
+        "pizarroso": 17,
+        "mohoso": 3
+      },
+      "espera": {
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 3"
+        }
+      },
+      "porcentajes": {
+        "fermentado_total": 55.0,
+        "violeta": 25.0,
+        "pizarroso": 17.0,
+        "mohoso": 3.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "la clase 'otro' se ignora y no diluye los porcentajes",
+      "conteo": {
+        "bien_fermentado": 40,
+        "violeta": 10,
+        "otro": 50
+      },
+      "espera": {
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 2"
+        }
+      },
+      "porcentajes": {
+        "fermentado_bueno": 80.0,
+        "fermentado_total": 80.0,
+        "violeta": 20.0
+      },
+      "granos_evaluados": 50,
+      "granos_ignorados": 50,
+      "avisos_esperados": 1
+    },
+    {
+      "nombre": "los defectos entran en el total y bajan el % fermentado",
+      "conteo": {
+        "bien_fermentado": 75,
+        "violeta": 5,
+        "dano_insectos": 10,
+        "germinado": 5,
+        "vano_plano": 5
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": false,
+          "resultado": "CCN-51 no conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 1"
+        }
+      },
+      "porcentajes": {
+        "fermentado_bueno": 75.0,
+        "fermentado_total": 75.0,
+        "violeta": 5.0,
+        "defectuoso": 20.0
+      },
+      "granos_evaluados": 100
+    },
+    {
+      "nombre": "prueba parcial del dia 5 con 50 granos: avisa que no son 100",
+      "conteo": {
+        "bien_fermentado": 30,
+        "ligeramente_fermentado": 5,
+        "violeta": 10,
+        "pizarroso": 5
+      },
+      "espera": {
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 2"
+        }
+      },
+      "porcentajes": {
+        "fermentado_total": 70.0,
+        "violeta": 20.0,
+        "pizarroso": 10.0
+      },
+      "granos_evaluados": 50,
+      "avisos_esperados": 1
+    },
+    {
+      "nombre": "mohoso por encima del limite tumba el grado 1",
+      "conteo": {
+        "bien_fermentado": 78,
+        "violeta": 14,
+        "pizarroso": 6,
+        "mohoso": 2
+      },
+      "espera": {
+        "ccn51_referencia": {
+          "conforme": false,
+          "resultado": "CCN-51 no conforme"
+        },
+        "grados_1_2_3": {
+          "conforme": true,
+          "resultado": "Grado 2"
+        }
+      },
+      "porcentajes": {
+        "fermentado_total": 78.0,
+        "violeta": 14.0,
+        "pizarroso": 6.0,
+        "mohoso": 2.0
+      },
+      "granos_evaluados": 100
+    }
+  ],
+  "errores": [
+    {
+      "nombre": "conteo vacio",
+      "conteo": {}
+    },
+    {
+      "nombre": "solo clases ignoradas",
+      "conteo": {
+        "otro": 10
+      }
+    },
+    {
+      "nombre": "cantidad negativa",
+      "conteo": {
+        "violeta": -3
+      }
+    }
+  ]
+}

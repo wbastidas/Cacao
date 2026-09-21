@@ -11,6 +11,15 @@
 | Usuario principal | Productor artesanal en Guayaquil, cacao CCN-51 de Catarama (Los Ríos) |
 | Estado | Borrador para validar con el desarrollador |
 
+> **Nota editorial.** Este documento se conserva **tal como se escribió** (v1.0): es el
+> punto de partida acordado y reescribirlo a posteriori haría imposible saber qué se pidió
+> y qué se decidió después. La única desviación respecto a lo que se entregó es la
+> tecnología de la §3: la app se implementó en **Android nativo con Kotlin** y no en
+> Flutter, por indicación posterior del cliente. Los requerimientos funcionales y no
+> funcionales no cambiaron. La justificación está en la §8 de
+> [`ARQUITECTURA.md`](ARQUITECTURA.md) y el mapa requerimiento → código, en
+> [`TRAZABILIDAD.md`](TRAZABILIDAD.md).
+
 **Cómo leer este documento.** Cada requerimiento tiene un código (RF = funcional, RNF = no funcional, RN = regla de negocio) y una prioridad: **M** = obligatorio para la primera versión (MVP), **D** = deseable, **F** = futuro. Entrégaselo completo a quien vaya a programar la app; con esto puede cotizar y construir.
 
 ---
@@ -99,6 +108,11 @@ flowchart LR
 ---
 
 ## 3. Arquitectura y tecnología recomendada
+
+> Esta tabla es la **recomendación original**. Lo entregado usa Kotlin + Jetpack Compose +
+> Room en lugar de Flutter + Drift, y `org.tensorflow:tensorflow-lite` en lugar de
+> `tflite_flutter`. El resto (Firebase, Drive con `drive.file`, Remote Config,
+> notificaciones locales, PDF en el teléfono) se mantiene igual.
 
 | Capa | Tecnología sugerida | Motivo |
 | --- | --- | --- |

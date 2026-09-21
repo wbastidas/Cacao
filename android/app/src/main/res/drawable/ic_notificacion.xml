@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Icono de la barra de estado.
+
+    Tiene que ser una SILUETA de un solo color sobre transparente: Android
+    descarta los colores del icono pequeño y lo pinta de blanco entero. Usar
+    aquí el icono del lanzador, que es a color, daría una mancha blanca sin
+    forma reconocible.
+
+    Sirve además como capa monocroma del icono adaptativo, para los lanzadores
+    con iconos temáticos de Android 13+.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,3.2 C14.1,4.6 16.9,7.6 16.9,12 C16.9,16.4 14.3,19.8 12,20.8 C9.7,19.8 7.1,16.4 7.1,12 C7.1,7.6 9.9,4.6 12,3.2 Z M11.2,6.6 C10.1,8.4 9.6,10.2 9.6,12 C9.6,13.8 10.1,15.6 11.2,17.4 L12.8,17.4 C11.7,15.6 11.2,13.8 11.2,12 C11.2,10.2 11.7,8.4 12.8,6.6 Z" />
+</vector>
